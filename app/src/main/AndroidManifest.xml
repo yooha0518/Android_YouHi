@@ -18,6 +18,9 @@
         android:theme="@style/Theme.YouHi"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9031879160348060~3239204832"/>
         <activity
             android:name=".friend.FriendSearchActivity"
             android:exported="false" />

@@ -73,7 +73,7 @@ class BoardInsideActivity : AppCompatActivity() {
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://hihihaha.tplinkdns.com:5000")
+                .baseUrl("http://hihihaha.tplinkdns.com:4000")
                 .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
                 .addConverterFactory(GsonConverterFactory.create())// json 변환기 추가
                 .build()

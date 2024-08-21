@@ -52,7 +52,7 @@ class BoardWriteActivity : AppCompatActivity() {
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://hihihaha.tplinkdns.com:5000")
+                .baseUrl("http://hihihaha.tplinkdns.com:4000")
                 .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
                 .addConverterFactory(GsonConverterFactory.create())// json 변환기 추가
                 .build()
@@ -162,7 +162,7 @@ class BoardWriteActivity : AppCompatActivity() {
 
     suspend fun sendMsgApiRequest(nickName: String, message: String) {
         val title = "$nickName 님이 게시물을 작성했습니다."
-        val request = messageData(name = nickName, message = message, title = title)
+        val request = messageData(name = FBAuth.getUid(), message = message, title = title)
         try {
             Log.d("sendMsgApiRequest", "nickName: $nickName, message: $message")
             val apiResponse = apiService.sendMsg(request)

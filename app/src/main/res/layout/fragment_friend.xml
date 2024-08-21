@@ -13,24 +13,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <Button
-                android:id="@+id/BTN_friend_search"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="친구 찾기"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <!-- 상단에 친구 요청 버튼 추가 -->
-            <Button
-                android:id="@+id/BTN_friend_res"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="받은 친구 요청 보기"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_margin="16dp"/>
 
 
 
@@ -44,18 +26,43 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:orientation="vertical">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="친구 목록"
-                    android:gravity="center"
-                    android:textSize="20dp"
-                    android:textColor="@color/mainColor"/>
+                    android:layout_height="60dp">
+
+                    <Button
+                        android:id="@+id/BTN_friend_search"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="친구 찾기"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/TV_title"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="친구 목록"
+                        android:gravity="center"
+                        android:textSize="20dp"
+                        android:textColor="@color/mainColor"/>
+
+                    <!-- 상단에 친구 요청 버튼 추가 -->
+                    <Button
+                        android:id="@+id/BTN_friend_res"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="받은 요청"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+                </LinearLayout>
+
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="2dp"
+                    android:layout_height="1dp"
                     android:background="#999999"></LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -132,7 +139,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/bottom_goodtip_purple" />
+                    android:src="@drawable/bottom_friend_pink" />
 
                 <ImageView
                     android:id="@+id/talkTap"

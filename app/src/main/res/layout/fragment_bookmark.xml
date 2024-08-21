@@ -72,7 +72,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/bottom_goodtip" />
+                    android:src="@drawable/bottom_friend" />
 
                 <ImageView
                     android:id="@+id/talkTap"
@@ -86,7 +86,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/bottom_bookmark_purple" />
+                    android:src="@drawable/bottom_bookmark_pink" />
 
                 <ImageView
                     android:id="@+id/storeTap"

@@ -74,7 +74,7 @@ class BoardListActivity : AppCompatActivity() {
                     }
 
                     // 이후 게시물 데이터를 가져옵니다.
-                    fetchBoardData(friendsList)
+                    fetchBoardData(friendsList, currentUserUid)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -83,7 +83,7 @@ class BoardListActivity : AppCompatActivity() {
             })
     }
 
-    private fun fetchBoardData(friendsList: List<String>) {
+    private fun fetchBoardData(friendsList: List<String>, currentUserUid: String) {
         val postListener = object : ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -92,8 +92,8 @@ class BoardListActivity : AppCompatActivity() {
                     val item = dataModel.getValue(BoardModel::class.java)
                     val writer = item?.uid
 
-                    // writer가 친구 목록에 있는 경우에만 데이터를 추가합니다.
-                    if (writer != null && friendsList.contains(writer)) {
+                    // writer가 친구 목록에 있거나, 현재 사용자 자신인 경우에만 데이터를 추가합니다.
+                    if (writer != null && (friendsList.contains(writer) || writer == currentUserUid)) {
                         boardDataList.add(item)
                         boardKeyList.add(dataModel.key.toString()) // 각 게시물의 고유키값이 들어감
                     }
@@ -123,6 +123,4 @@ class BoardListActivity : AppCompatActivity() {
             else -> Log.e("error", "!!!! category가 없습니다")
         }
     }
-
-
 }

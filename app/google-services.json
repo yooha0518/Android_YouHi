@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "925436875969",
-    "firebase_url": "https://solelife-b7442-default-rtdb.firebaseio.com",
-    "project_id": "solelife-b7442",
-    "storage_bucket": "solelife-b7442.appspot.com"
+    "project_number": "605266382344",
+    "firebase_url": "https://youhi-9908f-default-rtdb.firebaseio.com",
+    "project_id": "youhi-9908f",
+    "storage_bucket": "youhi-9908f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:925436875969:android:273bc111989ac4fe9d7040",
+        "mobilesdk_app_id": "1:605266382344:android:e1061eef0144a87bbc0bbd",
         "android_client_info": {
           "package_name": "com.yoohayoung.youhi"
         }
@@ -16,14 +16,15 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCAY548lcycMycpMbFXMcUjZo8VR_LcAiI"
+          "current_key": "AIzaSyD3QSAnkjm-TQf4oaSusDcFjjLSYNVXRAs"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": []
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-6275012078813593~1532395592"
     }
   ],
   "configuration_version": "1"

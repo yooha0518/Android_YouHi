@@ -102,8 +102,6 @@ class BookmarkFragment : Fragment() {
                 bookmarkIdList.clear()
                 for(dataModel in dataSnapshot.children){
                     bookmarkIdList.add(dataModel.key.toString())
-                    Log.d("1111 list에 데이터 추가","$dataModel")
-
                 }
 
 

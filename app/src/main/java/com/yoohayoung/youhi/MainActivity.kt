@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import com.google.android.gms.ads.MobileAds
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -21,6 +22,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.JsonSyntaxException
 import com.yoohayoung.youhi.auth.IntroActivity
+import com.yoohayoung.youhi.contentList.ContentListActivity
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.ResponseInterceptor
 import kotlinx.coroutines.CoroutineScope
@@ -41,8 +43,6 @@ import java.util.concurrent.TimeUnit
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-
-    private val SCOPES = "https://www.googleapis.com/auth/firebase.messaging"
 
     private lateinit var apiService: ApiService
 
@@ -70,13 +70,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        MobileAds.initialize(this)
+
         auth = Firebase.auth
 
         // BackPressCloseHandler 인스턴스 생성
 //        backPressHandler = BackPressHandler(this);
-
-
-
 //        findViewById<Button>(R.id.logoutBtn).setOnClickListener {
 //            auth.signOut()
             //기존의 Acitivity를 날려서 뒤로가기했을때, 앱이 나가지도록 함
@@ -92,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://hihihaha.tplinkdns.com:5000")
+                .baseUrl("http://hihihaha.tplinkdns.com:4000")
                 .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -172,49 +171,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getAccessToken(): Deferred<String?> = scope.async(Dispatchers.IO) {
-        var asset: InputStream? = null
-        try {
-            asset = resources.assets.open("key.json")
-            val googleCredential = GoogleCredentials.fromStream(asset)
-                .createScoped(listOf(SCOPES))
-
-            // AccessToken을 갱신하고 tokenValue를 반환
-            googleCredential.refreshAccessToken()
-
-            val accessToken = googleCredential.accessToken
-            if (accessToken == null) {
-                Log.d("getAccessToken", "AccessToken이 null입니다.")
-                return@async null
-            }
-
-            return@async accessToken.tokenValue
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-            Log.d("getAccessToken", "파일을 찾지 못함: ${e.message}")
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Log.d("getAccessToken", "파일 읽기 중 오류 발생: ${e.message}")
-        } catch (e: JsonSyntaxException) {
-            e.printStackTrace()
-            Log.d("getAccessToken", "JSON 구문 오류 발생: ${e.message}")
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-            Log.d("getAccessToken", "보안 예외 발생: ${e.message}")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.d("getAccessToken", "알 수 없는 오류 발생: ${e.message}")
-        } finally {
-            try {
-                asset?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                Log.d("getAccessToken", "자원을 닫는 중 오류 발생: ${e.message}")
-            }
-        }
-        return@async null
-    }
-
     // 액티비티의 생명주기에 맞게 CoroutineScope를 취소해야 합니다.
     override fun onDestroy() {
         super.onDestroy()
@@ -233,6 +189,20 @@ class MainActivity : AppCompatActivity() {
             alertDialog.dismiss()
             startActivity(intent)
         }
+
+        alertDialog.findViewById<Button>(R.id.BTN_profile)?.setOnClickListener{
+            val intent = Intent(this, ContentListActivity::class.java)
+            intent.putExtra("category", "category1")
+            alertDialog.dismiss()
+            startActivity(intent)
+        }
+        alertDialog.findViewById<Button>(R.id.BTN_blog)?.setOnClickListener{
+            val intent = Intent(this, ContentListActivity::class.java)
+            intent.putExtra("category", "category2")
+            alertDialog.dismiss()
+            startActivity(intent)
+        }
+
         alertDialog.findViewById<Button>(R.id.logout_btn)?.setOnClickListener{
             auth.signOut()
 
@@ -242,7 +212,6 @@ class MainActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
             alertDialog.dismiss()
             startActivity(intent)
-
         }
 
     }

@@ -201,12 +201,14 @@ class FriendFragment : Fragment() {
             // Show friends list
             binding.RVFriendList.visibility = View.VISIBLE
             binding.RVFriendRequestsList.visibility = View.GONE
-            binding.BTNFriendRes.text = "받은 친구 요청 보기"
+            binding.BTNFriendRes.text = "받은 요청"
+            binding.TVTitle.text="친구 목록"
         } else {
             // Show pending friend requests
             binding.RVFriendList.visibility = View.GONE
             binding.RVFriendRequestsList.visibility = View.VISIBLE
-            binding.BTNFriendRes.text = "친구 목록 보기"
+            binding.BTNFriendRes.text = "친구 목록"
+            binding.TVTitle.text="받은 요청 목록"
         }
         isShowingPendingRequests = !isShowingPendingRequests
     }

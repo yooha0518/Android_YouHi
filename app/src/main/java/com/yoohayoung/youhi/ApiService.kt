@@ -4,7 +4,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface ApiService {
-    @POST("/sendMsg") //메시지 전송 API 호출
+    @POST("/sendMsgYouHi") //메시지 전송 API 호출
     suspend fun sendMsg(
         @Body request: messageData,
     ): ApiResponse
