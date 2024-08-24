@@ -43,6 +43,14 @@ class StoreFragment : Fragment() {
             addEvent()
         }
 
+        binding.previousMonthButton.setOnClickListener {
+            moveToPreviousMonth()
+        }
+
+        binding.nextMonthButton.setOnClickListener {
+            moveToNextMonth()
+        }
+
         binding.tipTap.setOnClickListener {
             Log.d("HomeFragment", "click")
             it.findNavController().navigate(R.id.action_storeFragment_to_friendFragment)
@@ -72,7 +80,21 @@ class StoreFragment : Fragment() {
         binding.calendarRecyclerView.layoutManager = GridLayoutManager(context, 7) // 7 columns for the days of the week
         binding.calendarRecyclerView.adapter = calendarAdapter
 
+        updateMonthYearText()
+    }
+
+    private fun updateMonthYearText() {
         binding.monthYearText.text = currentMonthYearFormat.format(calendar.time)
+    }
+
+    private fun moveToPreviousMonth() {
+        calendar.add(Calendar.MONTH, -1)
+        updateCalendar()
+    }
+
+    private fun moveToNextMonth() {
+        calendar.add(Calendar.MONTH, 1)
+        updateCalendar()
     }
 
     private fun getDaysInMonthArray(): List<CalendarDay> {
@@ -118,19 +140,20 @@ class StoreFragment : Fragment() {
     }
 
     private fun addEvent() {
-        val eventDescription = binding.eventEditText.text.toString()
+        val eventDescription = binding.ETEventTitle.text.toString()
         selectedDate?.let {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val dateStr = dateFormat.format(it)
             events[dateStr] = eventDescription
             updateCalendar()
-            binding.eventEditText.text.clear()
+            binding.ETEventTitle.text.clear()
             Toast.makeText(context, "Event added", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun updateCalendar() {
         calendarAdapter.updateData(getDaysInMonthArray())
+        updateMonthYearText()
     }
 
     private fun updateSelectedDate(day: CalendarDay) {
@@ -144,12 +167,12 @@ class StoreFragment : Fragment() {
             null
         }
 
-        binding.selectedDateText.text = if (selectedDate != null) {
+        binding.TVSelectedDate.text = if (selectedDate != null) {
             "Selected Date: $dateStr"
         } else {
             "Selected Date: Invalid date"
         }
 
-        binding.eventEditText.setText(events[dateStr])
+        binding.TVSelectedDate.setText(events[dateStr])
     }
 }

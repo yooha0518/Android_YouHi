@@ -15,13 +15,10 @@ import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 
 class BoardListActivity : AppCompatActivity() {
-
-    private  val boardDataList = mutableListOf<BoardModel>()
-
+    private lateinit var binding: ActivityBoardListBinding
+    private val boardDataList = mutableListOf<BoardModel>()
     private val boardKeyList = mutableListOf<String>()
-
     private lateinit var boardRVAdapter : BoardListLVAdapter
-
     private lateinit var category :String
 
 
@@ -30,7 +27,7 @@ class BoardListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_board_list)
 
         // 데이터 바인딩 초기화
-        val binding: ActivityBoardListBinding = DataBindingUtil.setContentView(this, R.layout.activity_board_list)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_board_list)
 
         boardRVAdapter = BoardListLVAdapter(boardDataList)
         binding.boardListView.adapter = boardRVAdapter

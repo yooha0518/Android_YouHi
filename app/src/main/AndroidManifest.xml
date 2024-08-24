@@ -20,7 +20,7 @@
         tools:targetApi="31">
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9031879160348060~3239204832"/>
+            android:value="ca-app-pub-6275012078813593~1532395592"/>
         <activity
             android:name=".friend.FriendSearchActivity"
             android:exported="false" />

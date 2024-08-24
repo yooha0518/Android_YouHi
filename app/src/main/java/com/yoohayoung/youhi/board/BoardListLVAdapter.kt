@@ -24,23 +24,18 @@ class BoardListLVAdapter(val boardList :MutableList<BoardModel>): BaseAdapter() 
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        var view = convertView
 
-//        if(view == null){
-            view = LayoutInflater.from(parent?.context).inflate(R.layout.board_list_item,parent, false)
-//        }
+        val view: View? = LayoutInflater.from(parent?.context).inflate(R.layout.board_list_item,parent, false)
 
         val itemLinearLayoutView = view?.findViewById<LinearLayout>(R.id.itemView)
         val title = view?.findViewById<TextView>(R.id.titleArea)
-        val content = view?.findViewById<TextView>(R.id.contentArea)
         val time = view?.findViewById<TextView>(R.id.timeArea)
 
-        if(boardList[position].uid.equals(FBAuth.getUid())) {
+        if(boardList[position].uid == FBAuth.getUid()) {
             itemLinearLayoutView?.setBackgroundColor(Color.parseColor("#F0E4F3"))
         }
 
         title!!.text = boardList[position].title
-//        content!!.text = boardList[position].content
         time!!.text = boardList[position].time
 
         return view!!

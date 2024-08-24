@@ -9,101 +9,120 @@
         tools:context=".fragments.TipFragment"
         android:orientation="vertical">
 
-
-        <TextView
-            android:id="@+id/monthYearText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="August 2024"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"/>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 버튼을 추가하여 이전 달과 다음 달로 이동할 수 있게 합니다 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/previousMonthButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Previous Month"/>
+
+                <TextView
+                    android:id="@+id/monthYearText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginHorizontal="16dp"
+                    android:text="Month Year"/>
+
+                <Button
+                    android:id="@+id/nextMonthButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Next Month"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Sun"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Mon"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tue"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Wed"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Thu"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Fri"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Sat"
+                    android:textAlignment="center"/>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/calendarRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/TV_selectedDate"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Sun"
-                android:textAlignment="center"/>
+                android:text="Selected Date: "/>
 
-            <TextView
-                android:layout_width="0dp"
+            <EditText
+                android:id="@+id/ET_eventTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Mon"
-                android:textAlignment="center"/>
+                android:hint="Enter event"/>
 
-            <TextView
-                android:layout_width="0dp"
+            <Button
+                android:id="@+id/addEventButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Tue"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Wed"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Thu"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Fri"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Sat"
-                android:textAlignment="center"/>
-
+                android:text="Add Event"/>
         </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/calendarRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:scrollbars="none" />
-
-        <TextView
-            android:id="@+id/selectedDateText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Selected Date: None"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:layout_gravity="center"/>
-
-        <EditText
-            android:id="@+id/eventEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter event description"/>
-
-        <Button
-            android:id="@+id/addEventButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Event"
-            android:layout_gravity="center"/>
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
