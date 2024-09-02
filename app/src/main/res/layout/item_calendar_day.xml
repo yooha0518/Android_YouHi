@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:layout_margin="4dp"
-    android:padding="8dp"
+    android:layout_margin="2dp"
+    android:padding="2dp"
     android:background="?attr/selectableItemBackground">
 
     <TextView
@@ -16,11 +16,28 @@
         android:text="1" />
 
     <TextView
-        android:id="@+id/eventText"
+        android:id="@+id/ET_eventTitle1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textColor="@android:color/holo_red_dark"
-        android:text="Event" />
+        android:textSize="10sp"
+        android:textColor="@color/black"
+        android:text="Event"
+        android:visibility="invisible"/>
+    <TextView
+        android:id="@+id/ET_eventTitle2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:textColor="@color/black"
+        android:text="Event"
+        android:visibility="invisible"/>
+    <TextView
+        android:id="@+id/ET_eventTitle3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:textColor="@color/black"
+        android:text="Event"
+        android:visibility="invisible"/>
 
 </LinearLayout>

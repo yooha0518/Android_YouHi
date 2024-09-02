@@ -15,7 +15,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- 버튼을 추가하여 이전 달과 다음 달로 이동할 수 있게 합니다 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -122,6 +121,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Add Event"/>
+
+            <CheckBox
+                android:id="@+id/CB_eventIsPrivate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="나만 보기"/>
+            
         </LinearLayout>
 
 

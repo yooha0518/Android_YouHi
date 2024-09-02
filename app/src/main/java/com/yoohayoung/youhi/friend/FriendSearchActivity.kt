@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.yoohayoung.youhi.databinding.ActivityFriendSearchBinding
-import com.yoohayoung.youhi.utils.FBAuth
 
 class FriendSearchActivity : AppCompatActivity(), UserActionListener {
 

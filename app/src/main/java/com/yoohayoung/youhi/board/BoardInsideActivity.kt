@@ -111,7 +111,7 @@ class BoardInsideActivity : AppCompatActivity() {
 
     }
 
-    fun getCommentData(key : String){
+    private fun getCommentData(key : String){
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -137,7 +137,7 @@ class BoardInsideActivity : AppCompatActivity() {
 
     }
 
-    fun insertComment(key: String) {
+    private fun insertComment(key: String) {
         val commentText = binding.commentArea.text.toString().trim()
 
         if (commentText.isNotEmpty()) {
@@ -146,6 +146,7 @@ class BoardInsideActivity : AppCompatActivity() {
                 .push()
                 .setValue(
                     CommentModel(
+                        getUid(),
                         commentText,
                         FBAuth.getTime()
                     )

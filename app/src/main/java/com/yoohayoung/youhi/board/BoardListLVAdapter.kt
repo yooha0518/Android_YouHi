@@ -30,6 +30,7 @@ class BoardListLVAdapter(val boardList :MutableList<BoardModel>): BaseAdapter() 
         val itemLinearLayoutView = view?.findViewById<LinearLayout>(R.id.itemView)
         val title = view?.findViewById<TextView>(R.id.titleArea)
         val time = view?.findViewById<TextView>(R.id.timeArea)
+        val TV_nickName = view?.findViewById<TextView>(R.id.TV_nickName)
 
         if(boardList[position].uid == FBAuth.getUid()) {
             itemLinearLayoutView?.setBackgroundColor(Color.parseColor("#F0E4F3"))
@@ -37,6 +38,11 @@ class BoardListLVAdapter(val boardList :MutableList<BoardModel>): BaseAdapter() 
 
         title!!.text = boardList[position].title
         time!!.text = boardList[position].time
+
+        // 닉네임을 비동기적으로 가져와서 설정
+        FBAuth.getNickName(boardList[position].uid) { nickName ->
+            TV_nickName!!.text = nickName
+        }
 
         return view!!
     }

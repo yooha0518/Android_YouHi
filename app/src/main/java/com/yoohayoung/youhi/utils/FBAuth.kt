@@ -32,22 +32,21 @@ class FBAuth {
             return dateFormat
         }
 
-        suspend fun getNickName(): String? = suspendCancellableCoroutine { continuation ->
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
-            if (uid != null) {
+        fun getNickName(uid: String, callback: (String) -> Unit) {
+            if (uid.isNotEmpty()) {
                 FBRef.userRef.child(uid).child("nickName")
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            val nickName = dataSnapshot.getValue(String::class.java)
-                            continuation.resume(nickName)
+                            val nickName = dataSnapshot.getValue(String::class.java) ?: ""
+                            callback(nickName) // 데이터를 가져온 후 콜백 호출
                         }
 
                         override fun onCancelled(databaseError: DatabaseError) {
-                            continuation.resumeWithException(databaseError.toException())
+                            callback("") // 에러가 발생한 경우 빈 문자열을 반환
                         }
                     })
             } else {
-                continuation.resumeWithException(IllegalStateException("User UID is null"))
+                callback("") // uid가 비어 있는 경우 빈 문자열을 반환
             }
         }
     }
