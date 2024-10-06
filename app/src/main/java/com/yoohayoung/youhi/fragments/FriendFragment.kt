@@ -1,5 +1,6 @@
 package com.yoohayoung.youhi.fragments
 
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -24,13 +25,16 @@ import com.yoohayoung.youhi.friend.FriendAdapter
 import com.yoohayoung.youhi.friend.FriendSearchActivity
 import com.yoohayoung.youhi.friend.UserAdapter
 import com.yoohayoung.youhi.utils.FBAuth
+import com.yoohayoung.youhi.utils.FBRef
 
-class FriendFragment : Fragment() {
+class FriendFragment : Fragment(),FriendAdapter.FriendActionListener {
 
     private lateinit var binding: FragmentFriendBinding
     private lateinit var friendAdapter : FriendAdapter
     private lateinit var pendingFriendAdapter : FriendAdapter
     private var isShowingPendingRequests: Boolean = false
+    private val friendsList = mutableListOf<Friend>()
+    private val pendingList = mutableListOf<Friend>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,8 +43,9 @@ class FriendFragment : Fragment() {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_friend,container,false)
 
-        friendAdapter = FriendAdapter(mutableListOf())
-        pendingFriendAdapter = FriendAdapter(mutableListOf())
+        friendAdapter = FriendAdapter(friendsList,this)
+        pendingFriendAdapter = FriendAdapter(pendingList,this)
+
 
         binding.RVFriendList.adapter = friendAdapter
         binding.RVFriendRequestsList.adapter = pendingFriendAdapter
@@ -52,32 +57,65 @@ class FriendFragment : Fragment() {
         loadPendingFriendRequests()
         loadFriends()
 
-
-
-        // Toggle button to switch between friends list and pending requests
         binding.BTNFriendRes.setOnClickListener {
             toggleView()
         }
 
         binding.BTNFriendSearch.setOnClickListener {
             val intent = Intent(context, FriendSearchActivity::class.java)
-            startActivity(intent)
+            // 애니메이션 없이 액티비티 시작
+            val options = ActivityOptions.makeCustomAnimation(context, 0, 0)
+            startActivity(intent, options.toBundle())
         }
 
-        binding.homeTap.setOnClickListener{
+        binding.IVMenubarHome.setOnClickListener{
             it.findNavController().navigate(R.id.action_friendFragment_to_homeFragment)
         }
-        binding.bookmarkTap.setOnClickListener{
+        binding.IVMenubarLike.setOnClickListener{
             it.findNavController().navigate(R.id.action_friendFragment_to_bookmarkFragment)
         }
-        binding.talkTap.setOnClickListener{
+        binding.IVMenubarBoard.setOnClickListener{
             it.findNavController().navigate(R.id.action_friendFragment_to_talkFragment)
         }
-        binding.storeTap.setOnClickListener{
-            it.findNavController().navigate(R.id.action_friendFragment_to_storeFragment)
+        binding.IVMenubarCalender.setOnClickListener{
+            it.findNavController().navigate(R.id.action_friendFragment_to_calenderFragment)
         }
 
         return binding.root
+    }
+
+    override fun onFriendAction(friend: Friend){
+        if (friend.isFriend) {
+            Log.d("onFriendAction","friend: $friend")
+            // 이미 친구인 경우 친구 삭제
+            Log.d("onFriendAction","친구를 삭제합니다.")
+            remoteFriend(friend)
+        } else {
+            //친구가 아니면 친구 요청 수락
+            Log.d("onFriendAction","친구 요청을 수락합니다.")
+            acceptFriendRequest(friend)
+        }
+    }
+
+    private fun acceptFriendRequest(friend: Friend){
+        val database = FirebaseDatabase.getInstance().reference
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        Log.d("FriendFragment", "Friend clicked: ${friend.uid}")
+
+        // 친구 요청 수락 처리
+        database.child("user").child(currentUserId).child("friends").child(friend.uid).setValue(true)
+        database.child("user").child(friend.uid).child("friends").child(currentUserId).setValue(true)
+
+        // friendRequests에서 요청 제거
+        database.child("friendRequests").child(friend.uid).child(currentUserId).removeValue()
+    }
+
+    private fun remoteFriend(friend:Friend){
+        val database = FirebaseDatabase.getInstance().reference
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        // 서로 친구 삭제
+        database.child("user").child(currentUserId).child("friends").child(friend.uid).removeValue()
+        database.child("user").child(friend.uid).child("friends").child(currentUserId).removeValue()
     }
 
     private fun loadPendingFriendRequests() {
@@ -87,10 +125,10 @@ class FriendFragment : Fragment() {
 
         // 현재 사용자가 요청을 받은 사람으로서, 요청을 보낸 사람들의 UID를 조회
         database.child("friendRequests").orderByChild(currentUserId).equalTo("pending")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+            .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    val pendingList = mutableListOf<Friend>()
-
+                    pendingList.clear()
+                    friendsList.clear()
                     // 데이터가 없으면 로그 출력 후 종료
                     if (!dataSnapshot.exists()) {
                         Log.d("FriendFragment2", "No request friends found")
@@ -103,30 +141,18 @@ class FriendFragment : Fragment() {
 
                         // 요청을 보낸 유저의 정보를 가져오기 위해 'user' 경로에서 데이터 읽기
                         database.child("user").child(senderUid)
-                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                            .addValueEventListener(object : ValueEventListener {
                                 override fun onDataChange(senderSnapshot: DataSnapshot) {
                                     val nickName = senderSnapshot.child("nickName").value.toString()
                                     val email = senderSnapshot.child("email").value.toString()
+                                    val name = senderSnapshot.child("name").value.toString()
+
                                     Log.d("FriendFragment2", "Sender: $senderUid, NickName: $nickName")
 
                                     // 요청한 친구 목록에 추가
-                                    pendingList.add(Friend(senderUid, nickName,email,false,true,false))
+                                    pendingList.add(Friend(senderUid, nickName,email, name,isFriend = false, isPendingRequest = true, isRequestSent = false))
 
                                     // 어댑터에 변경 사항 알리기
-
-                                    pendingFriendAdapter = FriendAdapter(pendingList).apply {
-                                        setOnItemClickListener { friend ->
-                                            Log.d("FriendFragment", "Friend clicked: ${friend.uid}")
-
-                                            // 친구 요청 수락 처리
-                                            database.child("user").child(currentUserId).child("friends").child(friend.uid).setValue(true)
-                                            database.child("user").child(friend.uid).child("friends").child(currentUserId).setValue(true)
-
-                                            // friendRequests에서 요청 제거
-                                            database.child("friendRequests").child(friend.uid).child(currentUserId).removeValue()
-                                        }
-                                    }
-                                    binding.RVFriendRequestsList.adapter = pendingFriendAdapter
                                     pendingFriendAdapter.notifyDataSetChanged()
                                 }
 
@@ -147,54 +173,50 @@ class FriendFragment : Fragment() {
         val database = FirebaseDatabase.getInstance().reference
         val currentUserId = FBAuth.getUid()
 
-        database.child("user").child(currentUserId).child("friends")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    val friendsList = mutableListOf<Friend>()
 
-                    if (!dataSnapshot.exists()) {
-                        Log.d("FriendFragment1", "No friends found")
-                        return
-                    }
-
-                    for (snapshot in dataSnapshot.children) {
-                        val friendUid = snapshot.key ?: continue
-
-                        database.child("user").child(friendUid)
-                            .addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(friendSnapshot: DataSnapshot) {
-                                    val nickName = friendSnapshot.child("nickName").value.toString()
-                                    val email = friendSnapshot.child("email").value.toString()
-                                    val isFriend = friendSnapshot.child("friends").child(currentUserId).exists()
-
-                                    friendsList.add(Friend(friendUid, nickName, email, isFriend, false, false))
-
-                                    // 친구 목록이 모두 로드된 후 어댑터에 변경 사항 적용
-                                    if (friendsList.size == dataSnapshot.childrenCount.toInt()) {
-                                        friendAdapter = FriendAdapter(friendsList).apply {
-                                            setOnItemClickListener { friend ->
-                                                Log.d("FriendFragment", "click/")
-                                                // 서로 친구 삭제
-                                                database.child("user").child(currentUserId).child("friends").child(friend.uid).removeValue()
-                                                database.child("user").child(friend.uid).child("friends").child(currentUserId).removeValue()
-                                            }
-                                        }
-                                        binding.RVFriendList.adapter = friendAdapter
-                                    }
-                                }
-
-                                override fun onCancelled(error: DatabaseError) {
-                                    Log.e("FriendFragment1", "Failed to load friend info", error.toException())
-                                }
-                            })
-                    }
+        // 새로운 이벤트 리스너 등록
+        friendsList.clear()
+        pendingList.clear()
+        val friendsEventListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                friendsList.clear() // 중복 방지 위해 초기화
+                if (!dataSnapshot.exists()) {
+                    Log.d("FriendFragment1", "No friends found")
+                    return
                 }
 
-                override fun onCancelled(databaseError: DatabaseError) {
-                    Log.e("FriendFragment1", "Failed to load friends", databaseError.toException())
+                for (snapshot in dataSnapshot.children) {
+                    val friendUid = snapshot.key ?: continue
+
+                    database.child("user").child(friendUid)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(friendSnapshot: DataSnapshot) {
+                                val nickName = friendSnapshot.child("nickName").value.toString()
+                                val email = friendSnapshot.child("email").value.toString()
+                                val name = friendSnapshot.child("name").value.toString()
+                                val isFriend = friendSnapshot.child("friends").child(currentUserId).exists()
+
+                                friendsList.add(Friend(friendUid, nickName, email, name, isFriend, isPendingRequest = false, isRequestSent = false))
+
+                                friendAdapter.notifyDataSetChanged()  // UI 업데이트
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                Log.e("FriendFragment1", "Failed to load friend info", error.toException())
+                            }
+                        })
                 }
-            })
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FriendFragment1", "Failed to load friends", databaseError.toException())
+            }
+        }
+
+        // 친구 목록에 이벤트 리스너 추가
+        database.child("user").child(currentUserId).child("friends").addValueEventListener(friendsEventListener)
     }
+
 
     private fun toggleView() {
         if (isShowingPendingRequests) {
@@ -212,7 +234,5 @@ class FriendFragment : Fragment() {
         }
         isShowingPendingRequests = !isShowingPendingRequests
     }
-
-
 
 }

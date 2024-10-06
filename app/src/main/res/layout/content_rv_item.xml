@@ -6,7 +6,6 @@
 
     <ImageView
         android:id="@+id/imageArea"
-        android:src="@drawable/main_icon_oneroom"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         />

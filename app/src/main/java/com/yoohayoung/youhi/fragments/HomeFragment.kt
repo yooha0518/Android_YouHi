@@ -66,21 +66,21 @@ class HomeFragment : Fragment() {
         })
 
 
-        binding.tipTap.setOnClickListener{
+        binding.IVMenubarFriend.setOnClickListener{
             Log.d("HomeFragment","click")
             it.findNavController().navigate(R.id.action_homeFragment_to_friendFragment)
         }
-        binding.bookmarkTap.setOnClickListener{
+        binding.IVMenubarLike.setOnClickListener{
             Log.d("HomeFragment","click")
             it.findNavController().navigate(R.id.action_homeFragment_to_bookmarkFragment)
         }
-        binding.talkTap.setOnClickListener{
+        binding.IVMenubarBoard.setOnClickListener{
             Log.d("HomeFragment","click")
             it.findNavController().navigate(R.id.action_homeFragment_to_talkFragment)
         }
-        binding.storeTap.setOnClickListener{
+        binding.IVMenubarCalender.setOnClickListener{
             Log.d("HomeFragment","click")
-            it.findNavController().navigate(R.id.action_homeFragment_to_storeFragment)
+            it.findNavController().navigate(R.id.action_homeFragment_to_calenderFragment)
         }
 
 

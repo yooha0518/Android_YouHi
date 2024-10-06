@@ -89,11 +89,16 @@ class BoardListActivity : AppCompatActivity() {
                     val item = dataModel.getValue(BoardModel::class.java)
                     val writer = item?.uid
 
-                    // writer가 친구 목록에 있거나, 현재 사용자 자신인 경우에만 데이터를 추가합니다.
-                    if (writer != null && (friendsList.contains(writer) || writer == currentUserUid)) {
+//                    // writer가 친구 목록에 있거나, 현재 사용자 자신인 경우에만 데이터를 추가합니다.
+//                    if (writer != null && (friendsList.contains(writer) || writer == currentUserUid)) {
+//                        boardDataList.add(item)
+//                        boardKeyList.add(dataModel.key.toString()) // 각 게시물의 고유키값이 들어감
+//                    }
+                    // hihihaha에선 모두 불러옴
+                    if (item != null) {
                         boardDataList.add(item)
-                        boardKeyList.add(dataModel.key.toString()) // 각 게시물의 고유키값이 들어감
                     }
+                    boardKeyList.add(dataModel.key.toString()) // 각 게시물의 고유키값이 들어감
                 }
 
                 // 데이터 역순으로 정렬(새로운 글이 작성되면 위로 쌓이도록 하기 위함)

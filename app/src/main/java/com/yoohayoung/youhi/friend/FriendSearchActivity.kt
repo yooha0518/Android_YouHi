@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.yoohayoung.youhi.databinding.ActivityFriendSearchBinding
 
-class FriendSearchActivity : AppCompatActivity(), UserActionListener {
+class FriendSearchActivity : AppCompatActivity(), UserAdapter.UserActionListener {
 
     private lateinit var binding: ActivityFriendSearchBinding
     private lateinit var userAdapter: UserAdapter
@@ -36,26 +36,59 @@ class FriendSearchActivity : AppCompatActivity(), UserActionListener {
         val database = FirebaseDatabase.getInstance().reference
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        database.child("user").addListenerForSingleValueEvent(object : ValueEventListener {
+        // 모든 유저 정보 실시간으로 로드
+        database.child("user").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                userList.clear()
+                val allUsers = mutableListOf<Friend>()  // 중복 방지를 위해 Map 대신 List 사용
+
                 for (snapshot in dataSnapshot.children) {
                     val uid = snapshot.key ?: continue
                     val nickName = snapshot.child("nickName").value.toString()
                     val email = snapshot.child("email").value.toString()
+                    val name = snapshot.child("name").value.toString()
 
-                    val isFriend = snapshot.child("friends").child(currentUserUid).exists()
-                    val isPendingRequest = snapshot.child("friendRequests").child(currentUserUid).child(uid).exists()
-                    val isRequestSent = snapshot.child("friendRequests").child(uid).child(currentUserUid).exists()
-
-                    Log.d("loadAllUsers","isFriend: $isFriend")
-                    Log.d("loadAllUsers","isPendingRequest: $isPendingRequest")
-                    Log.d("loadAllUsers","isRequestSent: $isRequestSent")
-
-                    // Adjust status based on the conditions
-                    userList.add(Friend(uid, nickName, email, isFriend, isPendingRequest, isRequestSent))
+                    // 초기 사용자 객체 생성
+                    allUsers.add(Friend(uid, nickName, email, name, isFriend = false, isPendingRequest = false, isRequestSent = false))
                 }
-                userAdapter.notifyDataSetChanged()
+
+                if (allUsers.isEmpty()) return
+
+                // 친구 상태와 친구 요청 상태 실시간으로 감지
+                database.child("friendRequests").addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(requestSnapshot: DataSnapshot) {
+                        database.child("user").child(currentUserUid).child("friends")
+                            .addValueEventListener(object : ValueEventListener {
+                                override fun onDataChange(friendSnapshot: DataSnapshot) {
+                                    val updatedUsers = allUsers.map { user ->
+                                        val uid = user.uid
+                                        val isFriend = friendSnapshot.child(uid).exists()
+                                        val isRequestSent = requestSnapshot.child(currentUserUid).child(uid).exists()
+                                        val isPendingRequest = requestSnapshot.child(uid).child(currentUserUid).exists()
+
+                                        // 사용자 상태 업데이트
+                                        user.copy(
+                                            isFriend = isFriend,
+                                            isRequestSent = isRequestSent,
+                                            isPendingRequest = isPendingRequest
+                                        )
+                                    }
+
+                                    // userList 업데이트
+                                    userList.clear()
+                                    userList.addAll(updatedUsers)
+                                    userAdapter.notifyDataSetChanged()
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    Log.e("FriendSearchActivity", "Failed to check friends", error.toException())
+                                }
+                            })
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("FriendSearchActivity", "Failed to check friend requests", error.toException())
+                    }
+                })
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -63,6 +96,7 @@ class FriendSearchActivity : AppCompatActivity(), UserActionListener {
             }
         })
     }
+
 
     private fun searchUsers(keyword: String) {
         val database = FirebaseDatabase.getInstance().reference
@@ -76,13 +110,14 @@ class FriendSearchActivity : AppCompatActivity(), UserActionListener {
                         val uid = snapshot.key ?: continue
                         val nickName = snapshot.child("nickName").value.toString()
                         val email = snapshot.child("email").value.toString()
+                        val name = snapshot.child("name").value.toString()
 
 
                         val isFriend = snapshot.child("friends").child(uid).exists()
                         val isPendingRequest = snapshot.child("friendRequests").child(currentUserUid).child(uid).exists()
                         val isRequestSent = snapshot.child("friendRequests").child(uid).child(currentUserUid).exists()
 
-                        userList.add(Friend(uid, nickName, email, isFriend, isPendingRequest, isRequestSent))
+                        userList.add(Friend(uid, nickName, email, name, isFriend, isPendingRequest, isRequestSent))
                     }
                     userAdapter.notifyDataSetChanged()
                 }
@@ -95,46 +130,46 @@ class FriendSearchActivity : AppCompatActivity(), UserActionListener {
 
     override fun onUserAction(friend: Friend) {
         if (friend.isFriend) {
-            // Already friends - no action
+            // 이미 친구인 경우 아무것도 하지 않음
+            Log.d("onUserAction","이미 친구입니다.")
         } else if (friend.isPendingRequest) {
-            acceptFriendRequest(friend.uid)
+            // 요청을 받은 경우 친구 수락
+            Log.d("onUserAction","친구 요청을 수락합니다.")
+            acceptFriendRequest(friend)
         } else if (friend.isRequestSent) {
-            // Do nothing or show a message saying "Request already sent"
+            // 이미 요청을 보낸 경우 아무것도 하지 않음
+            Log.d("onUserAction","이미 친구요청을 전송했습니다.")
         } else {
-            sendFriendRequest(friend.uid)
+            // 친구요청을 전송함
+            Log.d("onUserAction","친구 요청을 전송합니다.")
+            sendFriendRequest(friend)
         }
     }
 
-    private fun sendFriendRequest(uid: String) {
+    private fun sendFriendRequest(friend: Friend) {
         val database = FirebaseDatabase.getInstance().reference
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        database.child("friendRequests").child(currentUserUid).child(uid).setValue("pending")
+
+        database.child("friendRequests").child(currentUserUid).child(friend.uid).setValue("pending")
             .addOnSuccessListener {
-                Log.d("FriendSearchActivity", "Friend request sent")
                 loadAllUsers()
+                Log.d("FriendSearchActivity", "Friend request sent")
             }
             .addOnFailureListener {
                 Log.e("FriendSearchActivity", "Failed to send friend request", it)
             }
     }
 
-    private fun acceptFriendRequest(uid: String) {
+    private fun acceptFriendRequest(friend: Friend) {
         val database = FirebaseDatabase.getInstance().reference
-        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        database.child("friendRequests").child(currentUserUid).child(uid).removeValue()
-            .addOnSuccessListener {
-                database.child("friends").child(currentUserUid).child(uid).setValue(true)
-                database.child("friends").child(uid).child(currentUserUid).setValue(true)
-                    .addOnSuccessListener {
-                        Log.d("FriendSearchActivity", "Friend request accepted")
-                        loadAllUsers()
-                    }
-                    .addOnFailureListener {
-                        Log.e("FriendSearchActivity", "Failed to accept friend request", it)
-                    }
-            }
-            .addOnFailureListener {
-                Log.e("FriendSearchActivity", "Failed to remove friend request", it)
-            }
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        Log.d("FriendFragment", "Friend clicked: ${friend.uid}")
+
+        // 친구 요청 수락 처리
+        database.child("user").child(currentUserId).child("friends").child(friend.uid).setValue(true)
+        database.child("user").child(friend.uid).child("friends").child(currentUserId).setValue(true)
+
+        // friendRequests에서 요청 제거
+        database.child("friendRequests").child(friend.uid).child(currentUserId).removeValue()
     }
 }

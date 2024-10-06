@@ -24,8 +24,8 @@ android {
         applicationId = "com.yoohayoung.youhi"
         minSdk = 28
         targetSdk = 34
-        versionCode = 4
-        versionName = "4.0"
+        versionCode = 5
+        versionName = "5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -90,6 +90,6 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-simplexml:2.9.0") //api 응답 xml 파싱에 필요
     implementation("com.google.android.gms:play-services-ads:23.3.0") //google ad
     implementation ("androidx.recyclerview:recyclerview:1.2.1")
-
-
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation ("androidx.cardview:cardview:1.0.0")
 }

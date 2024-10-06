@@ -4,7 +4,8 @@ data class Friend(
     val uid: String = "",
     val nickName: String = "",
     val email: String = "",
+    val name: String = "",
     val isFriend: Boolean = false,
     val isPendingRequest: Boolean = false,
-    val isRequestSent: Boolean = false
+    val isRequestSent: Boolean = false,
 )

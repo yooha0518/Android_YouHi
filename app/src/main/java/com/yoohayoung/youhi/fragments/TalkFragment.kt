@@ -11,11 +11,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.board.BoardListActivity
-import com.yoohayoung.youhi.databinding.FragmentTalkBinding
+import com.yoohayoung.youhi.databinding.FragmentBoardBinding
 
 class TalkFragment : Fragment() {
 
-    private lateinit var binding: FragmentTalkBinding
+    private lateinit var binding: FragmentBoardBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,68 +23,49 @@ class TalkFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
 
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_talk,container,false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_board,container,false)
 
 
-        binding.category1.setOnClickListener {
+        binding.IVCategory1.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
             intent.putExtra("category", "category1")
             startActivity(intent)
         }
 
-        binding.category2.setOnClickListener {
+        binding.IVCategory2.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
             intent.putExtra("category", "category2")
             startActivity(intent)
         }
 
-        binding.category3.setOnClickListener {
+        binding.IVCategory3.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
             intent.putExtra("category", "category3")
             startActivity(intent)
         }
 
-        binding.category4.setOnClickListener {
+        binding.IVCategory4.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
             intent.putExtra("category", "category4")
             startActivity(intent)
         }
 
-        binding.category5.setOnClickListener {
-            val intent = Intent(context, BoardListActivity::class.java)
-            intent.putExtra("category", "category5")
-            startActivity(intent)
-        }
-
-        binding.category6.setOnClickListener {
-            val intent = Intent(context, BoardListActivity::class.java)
-            intent.putExtra("category", "category6")
-            startActivity(intent)
-        }
-        binding.category7.setOnClickListener {
-            val intent = Intent(context, BoardListActivity::class.java)
-            intent.putExtra("category", "category7")
-            startActivity(intent)
-        }
-
-        binding.tipTap.setOnClickListener{
+        binding.IVMenubarFriend.setOnClickListener{
             Log.d("HomeFragment","click")
             it.findNavController().navigate(R.id.action_talkFragment_to_friendFragment)
         }
-        binding.bookmarkTap.setOnClickListener{
+        binding.IVMenubarLike.setOnClickListener{
             Log.d("HomeFragment","click")
             it.findNavController().navigate(R.id.action_talkFragment_to_bookmarkFragment)
         }
-        binding.homeTap.setOnClickListener{
+        binding.IVMenubarHome.setOnClickListener{
             Log.d("HomeFragment","click")
             it.findNavController().navigate(R.id.action_talkFragment_to_homeFragment)
         }
-        binding.storeTap.setOnClickListener{
+        binding.IVMenubarCalender.setOnClickListener{
             Log.d("HomeFragment","click")
-            it.findNavController().navigate(R.id.action_talkFragment_to_storeFragment)
+            it.findNavController().navigate(R.id.action_talkFragment_to_calenderFragment)
         }
-
-
 
         return binding.root
     }

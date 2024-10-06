@@ -3,10 +3,10 @@
     android:shape="rectangle" android:padding = "10dp">
     <solid android:color="#ffffff"></solid>
     <corners
-        android:bottomLeftRadius="30dp"
-        android:bottomRightRadius="30dp"
-        android:topLeftRadius="30dp"
-        android:topRightRadius="30dp"></corners>
+        android:bottomLeftRadius="20dp"
+        android:bottomRightRadius="20dp"
+        android:topLeftRadius="20dp"
+        android:topRightRadius="20dp"></corners>
 <!--    <stroke android:width="2dp"-->
 <!--        android:color="#BDBDBD"></stroke>-->
 </shape>

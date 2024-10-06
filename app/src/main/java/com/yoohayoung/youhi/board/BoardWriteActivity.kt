@@ -77,38 +77,38 @@ class BoardWriteActivity : AppCompatActivity() {
 
                 FBRef.boardRef1
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time))
+                    .setValue(BoardModel(title, content, uid, time, key))
 
             } else if (category == "category2") {
                 key = FBRef.boardRef2.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef2
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time))
+                    .setValue(BoardModel(title, content, uid, time, key))
             } else if (category == "category3") {
                 key = FBRef.boardRef3.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef3
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time))
+                    .setValue(BoardModel(title, content, uid, time, key))
             } else if (category == "category4") {
                 key = FBRef.boardRef4.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef4
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time))
+                    .setValue(BoardModel(title, content, uid, time, key))
             } else if (category == "category5") {
                 key = FBRef.boardRef5.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef5
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time))
+                    .setValue(BoardModel(title, content, uid, time, key))
             } else if (category == "category6") {
                 key = FBRef.boardRef6.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef6
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time))
+                    .setValue(BoardModel(title, content, uid, time, key))
             }  else if (category == "category7") {
                 key = FBRef.boardRef7.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef7
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time))
+                    .setValue(BoardModel(title, content, uid, time, key))
             } else {
                 key = "null"
                 Log.e("error", "!!!! category가 없습니다")

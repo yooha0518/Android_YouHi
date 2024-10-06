@@ -13,14 +13,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-
-
-
             <!-- 친구 목록 RecyclerView -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="60dp"
+                android:layout_marginBottom="70dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -30,13 +27,27 @@
                     android:layout_width="match_parent"
                     android:layout_height="60dp">
 
-                    <Button
-                        android:id="@+id/BTN_friend_search"
+                    <androidx.cardview.widget.CardView
+                        xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="친구 찾기"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:cardElevation="5dp"
+                        app:cardCornerRadius="22dp"
+                        android:layout_margin="8dp">
+
+                        <Button
+                            android:id="@+id/BTN_friend_search"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="친구 찾기"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:background="#7A36C8"
+                            android:padding="13dp"
+                            android:textColor="@color/white"/>
+
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:id="@+id/TV_title"
@@ -45,17 +56,31 @@
                         android:layout_weight="1"
                         android:text="친구 목록"
                         android:gravity="center"
-                        android:textSize="20dp"
-                        android:textColor="@color/mainColor"/>
+                        android:textSize="25dp"
+                        android:textColor="@color/purple"/>
 
-                    <!-- 상단에 친구 요청 버튼 추가 -->
-                    <Button
-                        android:id="@+id/BTN_friend_res"
+                    <androidx.cardview.widget.CardView
+                        xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="받은 요청"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
+                        app:cardElevation="5dp"
+                        app:cardCornerRadius="22dp"
+                        android:layout_margin="8dp">
+
+                        <Button
+                            android:id="@+id/BTN_friend_res"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="받은 요청"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:textColor="#7A36C8"
+                            android:background="@color/white"
+                            android:padding="13dp"
+                            />
+
+                    </androidx.cardview.widget.CardView>
                 </LinearLayout>
 
 
@@ -83,85 +108,65 @@
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
 
-
-
-            <!-- 하단 네비게이션 바 -->
             <LinearLayout
-                android:id="@+id/linearLayout2"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                app:layout_constraintBottom_toTopOf="@+id/linearLayout4">
+                android:id="@+id/linearLayout"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:background="@drawable/background_top_radius"
+                android:elevation="20dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"></LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                <ImageView
+                    android:id="@+id/IV_menubar_board"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
-                    android:background="@color/mainColor"></LinearLayout>
+                    android:adjustViewBounds="false"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center"
+                    android:src="@drawable/menubar_board" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"></LinearLayout>
+                <ImageView
+                    android:id="@+id/IV_menubar_friend"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center"
+                    android:src="@drawable/menubar_friend_color"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"></LinearLayout>
+                <ImageView
+                    android:id="@+id/IV_menubar_home"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center"
+                    android:src="@drawable/menubar_home" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"></LinearLayout>
+                <ImageView
+                    android:id="@+id/IV_menubar_like"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center"
+                    android:src="@drawable/menubar_like" />
+
+
+                <ImageView
+                    android:id="@+id/IV_menubar_calender"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center"
+                    android:src="@drawable/menubar_calender" />
+
             </LinearLayout>
 
-
-            <LinearLayout
-                android:id="@+id/linearLayout4"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <ImageView
-                    android:id="@+id/homeTap"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/bottom_hometap" />
-
-                <ImageView
-                    android:id="@+id/tipTap"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/bottom_friend_pink" />
-
-                <ImageView
-                    android:id="@+id/talkTap"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/bottom_talk" />
-
-                <ImageView
-                    android:id="@+id/bookmarkTap"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/bottom_bookmark" />
-
-                <ImageView
-                    android:id="@+id/storeTap"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/bottom_store" />
-            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
 </layout>

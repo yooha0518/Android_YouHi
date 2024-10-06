@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LL_calender_day"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -11,33 +12,32 @@
     <TextView
         android:id="@+id/dayText"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="16dp"
+        android:gravity="top"
+        android:text="1"
         android:textSize="16sp"
-        android:text="1" />
+        android:textColor="#6E6E6E"/>
 
     <TextView
         android:id="@+id/ET_eventTitle1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:textColor="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="9dp"
         android:text="Event"
-        android:visibility="invisible"/>
+        android:textColor="#2E2E2E"
+        android:textSize="9sp" />
     <TextView
         android:id="@+id/ET_eventTitle2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:textColor="@color/black"
-        android:text="Event"
-        android:visibility="invisible"/>
+        android:layout_width="match_parent"
+        android:layout_height="9dp"
+        android:textSize="9sp"
+        android:textColor="#2E2E2E"
+        android:text="Event"/>
     <TextView
         android:id="@+id/ET_eventTitle3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:textColor="@color/black"
-        android:text="Event"
-        android:visibility="invisible"/>
+        android:layout_width="match_parent"
+        android:layout_height="9dp"
+        android:textSize="9sp"
+        android:textColor="#2E2E2E"
+        android:text="Event"/>
 
 </LinearLayout>

@@ -16,17 +16,20 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.yoohayoung.youhi.ApiService
 import com.yoohayoung.youhi.R
-import com.yoohayoung.youhi.comment.CommentLVAdapter
 import com.yoohayoung.youhi.comment.CommentModel
+import com.yoohayoung.youhi.comment.CommentRVAdapter
 import com.yoohayoung.youhi.databinding.ActivityBoardInsideBinding
 import com.yoohayoung.youhi.messageData
 import com.yoohayoung.youhi.utils.FBAuth
@@ -53,12 +56,12 @@ class BoardInsideActivity : AppCompatActivity() {
 
     private lateinit var apiService: ApiService
 
-    private lateinit var key:String
+    private lateinit var boardId:String
     private lateinit var category :String
 
     private val commentDataList = mutableListOf<CommentModel>()
 
-    private lateinit var commentAdapter : CommentLVAdapter
+    private lateinit var commentAdapter : CommentRVAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,22 +89,23 @@ class BoardInsideActivity : AppCompatActivity() {
         }
 
         //아래의 방법은 게시글의 id로 데이터를 가져오는 방식
-        key = intent.getStringExtra("key").toString()
+        boardId = intent.getStringExtra("boardId").toString()
         category = intent.getStringExtra("category").toString()
 
-        Log.d("게시물의 key", "$key")
+        Log.d("게시물의 boardId", "$boardId")
         Log.d("게시물의 category", "$category")
 
-        getBoardData(key)
-        getImageData(key)
+        getBoardData()
+        getImageData(boardId)
 
         binding.commentBtn.setOnClickListener {
-            insertComment(key)
+            insertComment(boardId)
         }
 
-        getCommentData(key)
-        commentAdapter = CommentLVAdapter(commentDataList)
-        binding.commentLV.adapter = commentAdapter
+        getCommentData(boardId)
+        commentAdapter = CommentRVAdapter(commentDataList)
+        binding.RVComment.layoutManager = LinearLayoutManager(this)
+        binding.RVComment.adapter = commentAdapter
 
         binding.getImageArea.setOnClickListener {
             showImageDialog()
@@ -111,7 +115,7 @@ class BoardInsideActivity : AppCompatActivity() {
 
     }
 
-    private fun getCommentData(key : String){
+    private fun getCommentData(boardId : String){
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -121,6 +125,7 @@ class BoardInsideActivity : AppCompatActivity() {
                 for (dataModel in dataSnapshot.children) {
                     val item = dataModel.getValue(CommentModel::class.java)
                     commentDataList.add(item!!)
+                    Log.d("comment",item.toString())
                 }
 
                 commentAdapter.notifyDataSetChanged()
@@ -132,17 +137,17 @@ class BoardInsideActivity : AppCompatActivity() {
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
             }
         }
-        FBRef.commentRef.child(key).addValueEventListener(postListener)
+        FBRef.commentRef.child(boardId).addValueEventListener(postListener)
 
 
     }
 
-    private fun insertComment(key: String) {
+    private fun insertComment(boardId: String) {
         val commentText = binding.commentArea.text.toString().trim()
 
         if (commentText.isNotEmpty()) {
             FBRef.commentRef
-                .child(key)
+                .child(boardId)
                 .push()
                 .setValue(
                     CommentModel(
@@ -178,9 +183,9 @@ class BoardInsideActivity : AppCompatActivity() {
         }
     }
 
-    private fun getImageData(key: String){
+    private fun getImageData(boardId: String){
         // Reference to an image file in Cloud Storage
-        val storageReference = Firebase.storage.reference.child(key+".png")
+        val storageReference = Firebase.storage.reference.child(boardId+".png")
 
         // ImageView in your Activity
         val imageViewFromFB = binding.getImageArea
@@ -198,67 +203,26 @@ class BoardInsideActivity : AppCompatActivity() {
         })
     }
 
-    private fun getBoardData(key: String) {
-        val postListener = object : ValueEventListener {
+    private fun getBoardData() {
+        val database = FirebaseDatabase.getInstance().reference
 
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val dataModel = snapshot.getValue(BoardModel::class.java)
-                val userRef = FBRef.userRef.child(dataModel!!.uid).child("nickName")
+        database.child("board1").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (snapshot in dataSnapshot.children) {
+                    val board = snapshot.getValue(BoardModel::class.java)
 
-                try {
-                    userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(userSnapshot: DataSnapshot) {
-                            val nickName = userSnapshot.getValue(String::class.java)
-                            Log.d("uid", dataModel.uid)
-                            Log.d("nickName", nickName ?: "null")
-                            Log.d("title", dataModel.title)
-                            Log.d("content", dataModel.content)
+                    binding.usernameArea.text = board?.uid
+                    binding.contentArea.text = board?.content
+                    binding.titleArea.text = board?.title
+                    binding.timeArea.text = board?.time
 
-                            binding.usernameArea.text = nickName ?: "Unknown"
-                            binding.titleArea.text = dataModel.title
-                            binding.contentArea.text = dataModel.content
-                            binding.timeArea.text = dataModel.time
-
-                            val myUid = getUid()
-                            val writerUid = dataModel.uid
-
-                            if (myUid == writerUid) {
-                                binding.boardSettingIcon.isVisible = true
-                            }
-                        }
-
-                        override fun onCancelled(databaseError: DatabaseError) {
-                            Log.e("getBoardData", "Failed to read nickName", databaseError.toException())
-                        }
-                    })
-
-                } catch (e: Exception) {
-                    Log.d(TAG, "이미 삭제됨")
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.e("getBoardData", "Failed to read post", databaseError.toException())
+                Log.e("BoardActivity", "Failed to load boards", databaseError.toException())
             }
-        }
-
-        if (category == "category1") {
-            FBRef.boardRef1.child(key).addValueEventListener(postListener)
-        } else if (category == "category2") {
-            FBRef.boardRef2.child(key).addValueEventListener(postListener)
-        } else if (category == "category3") {
-            FBRef.boardRef3.child(key).addValueEventListener(postListener)
-        } else if (category == "category4") {
-            FBRef.boardRef4.child(key).addValueEventListener(postListener)
-        } else if (category == "category5") {
-            FBRef.boardRef5.child(key).addValueEventListener(postListener)
-        } else if (category == "category6") {
-            FBRef.boardRef6.child(key).addValueEventListener(postListener)
-        } else if (category == "category7") {
-            FBRef.boardRef7.child(key).addValueEventListener(postListener)
-        } else {
-            Log.e("getBoardData", "!!!! category가 없습니다")
-        }
+        })
     }
 
 
@@ -272,34 +236,34 @@ class BoardInsideActivity : AppCompatActivity() {
         alertDialog.findViewById<Button>(R.id.editBtn)?.setOnClickListener{
             val intent = Intent(this, BoardEditActivity::class.java)
 
-            intent.putExtra("key",key)
+            intent.putExtra("boardId",boardId)
             intent.putExtra("category", category)
 
             alertDialog.dismiss()
             startActivity(intent)
         }
         alertDialog.findViewById<Button>(R.id.removeBtn)?.setOnClickListener{
-//            FBRef.boardRef.child(key).removeValue() //게시글 삭제
+//            FBRef.boardRef.child(boardId).removeValue() //게시글 삭제
             if(category.equals("category1")){
-                FBRef.boardRef1.child(key).removeValue() //게시글 삭제
+                FBRef.boardRef1.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category2")){
-                FBRef.boardRef2.child(key).removeValue() //게시글 삭제
+                FBRef.boardRef2.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category3")){
-                FBRef.boardRef3.child(key).removeValue() //게시글 삭제
+                FBRef.boardRef3.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category4")){
-                FBRef.boardRef4.child(key).removeValue() //게시글 삭제
+                FBRef.boardRef4.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category5")){
-                FBRef.boardRef5.child(key).removeValue() //게시글 삭제
+                FBRef.boardRef5.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category6")){
-                FBRef.boardRef6.child(key).removeValue() //게시글 삭제
+                FBRef.boardRef6.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category7")){
-                FBRef.boardRef7.child(key).removeValue() //게시글 삭제
+                FBRef.boardRef7.child(boardId).removeValue() //게시글 삭제
             }else{
                 Log.e("error", "!!!! category가 없습니다")
             }
 
             // 이미지 삭제
-            val storageReference = Firebase.storage.reference.child("$key.png")
+            val storageReference = Firebase.storage.reference.child("$boardId.png")
             storageReference.metadata.addOnSuccessListener { metadata ->
                 // 메타데이터가 있으면 이미지가 존재하는 것
                 storageReference.delete().addOnSuccessListener {
@@ -319,7 +283,7 @@ class BoardInsideActivity : AppCompatActivity() {
     }
 
     private fun showImageDialog() {
-        val storageReference = Firebase.storage.reference.child("$key.png")
+        val storageReference = Firebase.storage.reference.child("$boardId.png")
 
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.image_dialog, null)
         val mBuilder = AlertDialog.Builder(this)
@@ -352,7 +316,7 @@ class BoardInsideActivity : AppCompatActivity() {
                         Log.d(TAG, "이미지 다운로드 성공")
 
                         // Save the downloaded file to the gallery
-                        val savedUri = saveImageToGallery(this, localFile, "$key.png")
+                        val savedUri = saveImageToGallery(this, localFile, "$boardId.png")
                         if (savedUri != null) {
                             Toast.makeText(this, "이미지가 갤러리에 저장되었습니다.", Toast.LENGTH_SHORT).show()
                         } else {

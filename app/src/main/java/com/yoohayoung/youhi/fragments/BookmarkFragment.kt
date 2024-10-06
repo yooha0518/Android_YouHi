@@ -37,17 +37,17 @@ class BookmarkFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_bookmark,container,false)
 
-        binding.tipTap.setOnClickListener{
+        binding.IVMenubarFriend.setOnClickListener{
             it.findNavController().navigate(R.id.action_bookmarkFragment_to_friendFragment)
         }
-        binding.homeTap.setOnClickListener{
+        binding.IVMenubarHome.setOnClickListener{
             it.findNavController().navigate(R.id.action_bookmarkFragment_to_homeFragment)
         }
-        binding.talkTap.setOnClickListener{
+        binding.IVMenubarFriend.setOnClickListener{
             it.findNavController().navigate(R.id.action_bookmarkFragment_to_talkFragment)
         }
-        binding.storeTap.setOnClickListener{
-            it.findNavController().navigate(R.id.action_bookmarkFragment_to_storeFragment)
+        binding.IVMenubarCalender.setOnClickListener{
+            it.findNavController().navigate(R.id.action_bookmarkFragment_to_calenderFragment)
         }
 
 

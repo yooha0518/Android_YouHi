@@ -4,8 +4,11 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="windowNoTitle">true</item>
-        <item name="colorPrimaryVariant">@color/mainColor</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@color/mainColor</item>
+        <item name="colorPrimaryVariant">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/white</item>
+        <item name="android:textViewStyle">@style/CustomTextViewStyle</item>
+        <item name="android:editTextStyle">@style/CustomEditTextStyle</item>
+        <item name="android:buttonStyle">@style/CustomButtonStyle</item>
 
     </style>
 
@@ -13,6 +16,23 @@
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textSize">20sp</item>
         <item name="android:layout_margin">10dp</item>
+        <item name="android:fontFamily">@font/jua</item>
+    </style>
+
+    <!-- TextView에 적용할 커스텀 스타일 정의 -->
+    <style name="CustomTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/jua</item>
+        <!-- 추가적인 스타일 속성도 여기에 설정 가능 -->
+    </style>
+
+    <!-- EditText 커스텀 스타일 -->
+    <style name="CustomEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:fontFamily">@font/jua</item>
+    </style>
+
+    <!-- Button 커스텀 스타일 -->
+    <style name="CustomButtonStyle" parent="android:Widget.Button">
+        <item name="android:fontFamily">@font/jua</item>
     </style>
 
 

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission(),
     ) { isGranted: Boolean ->
         if (isGranted) {
-            Toast.makeText(this, "알림기능이 허용됐습니다.", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "알림기능이 허용되었습니다.", Toast.LENGTH_SHORT)
                 .show()
         } else {
             Toast.makeText(
@@ -83,6 +84,7 @@ class MainActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 //            startActivity(intent)
 //        }
+
 
         findViewById<ImageView>(R.id.main_option).setOnClickListener {
             showDialog()
@@ -125,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
 
     suspend fun saveUserDataApiRequest(uid:String, token:String){
         val request = userData(name= uid, token = token)
@@ -213,7 +216,6 @@ class MainActivity : AppCompatActivity() {
             alertDialog.dismiss()
             startActivity(intent)
         }
-
     }
 
 

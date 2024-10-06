@@ -20,8 +20,8 @@
             android:id="@+id/action_homeFragment_to_friendFragment"
             app:destination="@id/friendFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_storeFragment"
-            app:destination="@id/storeFragment" />
+            android:id="@+id/action_homeFragment_to_calenderFragment"
+            app:destination="@id/calenderFragment" />
     </fragment>
     <fragment
         android:id="@+id/bookmarkFragment"
@@ -35,35 +35,35 @@
             android:id="@+id/action_bookmarkFragment_to_talkFragment"
             app:destination="@id/talkFragment" />
         <action
-            android:id="@+id/action_bookmarkFragment_to_storeFragment"
-            app:destination="@id/storeFragment" />
+            android:id="@+id/action_bookmarkFragment_to_calenderFragment"
+            app:destination="@id/calenderFragment" />
         <action
             android:id="@+id/action_bookmarkFragment_to_friendFragment"
             app:destination="@id/friendFragment" />
     </fragment>
     <fragment
-        android:id="@+id/storeFragment"
-        android:name="com.yoohayoung.youhi.fragments.StoreFragment"
+        android:id="@+id/calenderFragment"
+        android:name="com.yoohayoung.youhi.fragments.CalenderFragment"
         android:label="fragment_store"
-        tools:layout="@layout/fragment_store" >
+        tools:layout="@layout/fragment_calender" >
         <action
-            android:id="@+id/action_storeFragment_to_friendFragment"
+            android:id="@+id/action_calenderFragment_to_friendFragment"
             app:destination="@id/friendFragment" />
         <action
-            android:id="@+id/action_storeFragment_to_bookmarkFragment"
+            android:id="@+id/action_calenderFragment_to_bookmarkFragment"
             app:destination="@id/bookmarkFragment" />
         <action
-            android:id="@+id/action_storeFragment_to_homeFragment"
+            android:id="@+id/action_calenderFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
         <action
-            android:id="@+id/action_storeFragment_to_talkFragment"
+            android:id="@+id/action_calenderFragment_to_talkFragment"
             app:destination="@id/talkFragment" />
     </fragment>
     <fragment
         android:id="@+id/talkFragment"
         android:name="com.yoohayoung.youhi.fragments.TalkFragment"
         android:label="fragment_talk"
-        tools:layout="@layout/fragment_talk" >
+        tools:layout="@layout/fragment_board" >
         <action
             android:id="@+id/action_talkFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -74,8 +74,8 @@
             android:id="@+id/action_talkFragment_to_friendFragment"
             app:destination="@id/friendFragment" />
         <action
-            android:id="@+id/action_talkFragment_to_storeFragment"
-            app:destination="@id/storeFragment" />
+            android:id="@+id/action_talkFragment_to_calenderFragment"
+            app:destination="@id/calenderFragment" />
     </fragment>
     <fragment
         android:id="@+id/friendFragment"
@@ -92,7 +92,7 @@
             android:id="@+id/action_friendFragment_to_talkFragment"
             app:destination="@id/talkFragment" />
         <action
-            android:id="@+id/action_friendFragment_to_storeFragment"
-            app:destination="@id/storeFragment" />
+            android:id="@+id/action_friendFragment_to_calenderFragment"
+            app:destination="@id/calenderFragment" />
     </fragment>
 </navigation>

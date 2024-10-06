@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:tools="http://schemas.android.com/tools"
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto">
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.TipFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="70dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/IV_category1"
+            android:src="@drawable/board_category1"
+            android:layout_width="wrap_content"
+            android:layout_height="130dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"/>
+        <ImageView
+            android:id="@+id/IV_category2"
+            android:src="@drawable/board_category2"
+            android:layout_width="wrap_content"
+            android:layout_height="130dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"/>
+        <ImageView
+            android:id="@+id/IV_category3"
+            android:src="@drawable/board_category3"
+            android:layout_width="wrap_content"
+            android:layout_height="130dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"/>
+        <ImageView
+            android:id="@+id/IV_category4"
+            android:src="@drawable/board_category4"
+            android:layout_width="wrap_content"
+            android:layout_height="130dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"/>
+
+
+
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/background_top_radius"
+            android:elevation="20dp">
+
+            <ImageView
+                android:id="@+id/IV_menubar_board"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="false"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:src="@drawable/menubar_board_color" />
+
+            <ImageView
+                android:id="@+id/IV_menubar_friend"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:src="@drawable/menubar_friend"/>
+
+            <ImageView
+                android:id="@+id/IV_menubar_home"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:src="@drawable/menubar_home" />
+
+            <ImageView
+                android:id="@+id/IV_menubar_like"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:src="@drawable/menubar_like" />
+
+            <ImageView
+                android:id="@+id/IV_menubar_calender"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:src="@drawable/menubar_calender" />
+
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
+</layout>
