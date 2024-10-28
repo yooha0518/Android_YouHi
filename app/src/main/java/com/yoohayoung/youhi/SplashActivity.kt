@@ -24,13 +24,13 @@ class SplashActivity : AppCompatActivity() {
             Handler().postDelayed({
                 startActivity(Intent(this, IntroActivity::class.java))
                 finish()
-            },3000)
+            },2000)
         }else{
             Log.d("SplashActivity", "not null")
             Handler().postDelayed({
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
-            },3000)
+            },2000)
         }
     }
 }

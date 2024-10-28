@@ -19,10 +19,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -95,7 +93,7 @@ class BoardInsideActivity : AppCompatActivity() {
         Log.d("게시물의 boardId", "$boardId")
         Log.d("게시물의 category", "$category")
 
-        getBoardData()
+        getBoardData(boardId)
         getImageData(boardId)
 
         binding.commentBtn.setOnClickListener {
@@ -160,7 +158,7 @@ class BoardInsideActivity : AppCompatActivity() {
             Toast.makeText(this, "댓글 입력 완료", Toast.LENGTH_SHORT).show()
             binding.commentArea.setText("")
 
-            // 닉네임을 가져와서 sendMsgApiRequest 호출
+            // 닉네임을 가져와서 sendMsgApiRequest 호출 //TODO 댓글 알림 안가는 문제 해결하기
             FBRef.userRef.child(getUid()).child("nickName")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -202,27 +200,35 @@ class BoardInsideActivity : AppCompatActivity() {
             }
         })
     }
+    private fun getBoardData(boardId: String) {
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val board = snapshot.getValue(Board::class.java)
+                if (board != null) {
 
-    private fun getBoardData() {
-        val database = FirebaseDatabase.getInstance().reference
-
-        database.child("board1").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (snapshot in dataSnapshot.children) {
-                    val board = snapshot.getValue(BoardModel::class.java)
-
-                    binding.usernameArea.text = board?.uid
+                    // 닉네임을 비동기적으로 가져와서 설정
+                    FBAuth.getNickName(board.uid) { nickName ->
+                        binding.usernameArea.text = nickName
+                    }
                     binding.contentArea.text = board?.content
                     binding.titleArea.text = board?.title
                     binding.timeArea.text = board?.time
-
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.e("BoardActivity", "Failed to load boards", databaseError.toException())
+                Log.e("BoardInsideActivity", "Failed to load board data: ${databaseError.message}")
             }
-        })
+        }
+
+        // 카테고리에 따라 적절한 레퍼런스를 선택합니다.
+        when (category) {
+            "category1" -> FBRef.boardRef1.child(boardId).addListenerForSingleValueEvent(postListener)
+            "category2" -> FBRef.boardRef2.child(boardId).addListenerForSingleValueEvent(postListener)
+            "category3" -> FBRef.boardRef3.child(boardId).addListenerForSingleValueEvent(postListener)
+            "category4" -> FBRef.boardRef4.child(boardId).addListenerForSingleValueEvent(postListener)
+            else -> Log.e("BoardInsideActivity", "Invalid category!")
+        }
     }
 
 
@@ -252,12 +258,6 @@ class BoardInsideActivity : AppCompatActivity() {
                 FBRef.boardRef3.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category4")){
                 FBRef.boardRef4.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("category5")){
-                FBRef.boardRef5.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("category6")){
-                FBRef.boardRef6.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("category7")){
-                FBRef.boardRef7.child(boardId).removeValue() //게시글 삭제
             }else{
                 Log.e("error", "!!!! category가 없습니다")
             }

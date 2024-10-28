@@ -6,28 +6,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.yoohayoung.youhi.R
-import com.yoohayoung.youhi.board.BoardModel
-import com.yoohayoung.youhi.contentList.BookmarkRVAdapter
-import com.yoohayoung.youhi.contentList.ContentModel
 import com.yoohayoung.youhi.databinding.FragmentHomeBinding
-import com.yoohayoung.youhi.utils.FBRef
 
 class HomeFragment : Fragment() {
 

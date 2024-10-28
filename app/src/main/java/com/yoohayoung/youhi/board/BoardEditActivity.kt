@@ -63,7 +63,7 @@ class BoardEditActivity : AppCompatActivity() {
             FBRef.boardRef1
                 .child(key)
                 .setValue(
-                    BoardModel(binding.titleArea.text.toString(),
+                    Board(binding.titleArea.text.toString(),
                         binding.contentArea.text.toString(),
                         writerUid,
                         FBAuth.getTime())
@@ -72,7 +72,7 @@ class BoardEditActivity : AppCompatActivity() {
             FBRef.boardRef2
                 .child(key)
                 .setValue(
-                    BoardModel(binding.titleArea.text.toString(),
+                    Board(binding.titleArea.text.toString(),
                         binding.contentArea.text.toString(),
                         writerUid,
                         FBAuth.getTime())
@@ -81,7 +81,7 @@ class BoardEditActivity : AppCompatActivity() {
             FBRef.boardRef3
                 .child(key)
                 .setValue(
-                    BoardModel(binding.titleArea.text.toString(),
+                    Board(binding.titleArea.text.toString(),
                         binding.contentArea.text.toString(),
                         writerUid,
                         FBAuth.getTime())
@@ -90,7 +90,7 @@ class BoardEditActivity : AppCompatActivity() {
             FBRef.boardRef4
                 .child(key)
                 .setValue(
-                    BoardModel(binding.titleArea.text.toString(),
+                    Board(binding.titleArea.text.toString(),
                         binding.contentArea.text.toString(),
                         writerUid,
                         FBAuth.getTime())
@@ -99,7 +99,7 @@ class BoardEditActivity : AppCompatActivity() {
             FBRef.boardRef5
                 .child(key)
                 .setValue(
-                    BoardModel(binding.titleArea.text.toString(),
+                    Board(binding.titleArea.text.toString(),
                         binding.contentArea.text.toString(),
                         writerUid,
                         FBAuth.getTime())
@@ -108,7 +108,7 @@ class BoardEditActivity : AppCompatActivity() {
             FBRef.boardRef6
                 .child(key)
                 .setValue(
-                    BoardModel(binding.titleArea.text.toString(),
+                    Board(binding.titleArea.text.toString(),
                         binding.contentArea.text.toString(),
                         writerUid,
                         FBAuth.getTime())
@@ -117,7 +117,7 @@ class BoardEditActivity : AppCompatActivity() {
             FBRef.boardRef7
                 .child(key)
                 .setValue(
-                    BoardModel(binding.titleArea.text.toString(),
+                    Board(binding.titleArea.text.toString(),
                         binding.contentArea.text.toString(),
                         writerUid,
                         FBAuth.getTime())
@@ -142,7 +142,7 @@ class BoardEditActivity : AppCompatActivity() {
         val postListener = object: ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
-                val dataModel = snapshot.getValue(BoardModel::class.java)
+                val dataModel = snapshot.getValue(Board::class.java)
                 dataModel?.title?.let { Log.d("Edit title", it) }
                 dataModel?.content?.let { Log.d("Edit content", it) }
                 dataModel?.uid?.let { Log.d("Edit uid", it) }

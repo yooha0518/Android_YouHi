@@ -24,7 +24,9 @@ import com.yoohayoung.youhi.utils.ResponseInterceptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
@@ -77,39 +79,24 @@ class BoardWriteActivity : AppCompatActivity() {
 
                 FBRef.boardRef1
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time, key))
+                    .setValue(Board(title, content, uid, time, key))
 
             } else if (category == "category2") {
                 key = FBRef.boardRef2.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef2
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time, key))
+                    .setValue(Board(title, content, uid, time, key))
             } else if (category == "category3") {
                 key = FBRef.boardRef3.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef3
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time, key))
+                    .setValue(Board(title, content, uid, time, key))
             } else if (category == "category4") {
                 key = FBRef.boardRef4.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
                 FBRef.boardRef4
                     .child(key)
-                    .setValue(BoardModel(title, content, uid, time, key))
-            } else if (category == "category5") {
-                key = FBRef.boardRef5.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
-                FBRef.boardRef5
-                    .child(key)
-                    .setValue(BoardModel(title, content, uid, time, key))
-            } else if (category == "category6") {
-                key = FBRef.boardRef6.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
-                FBRef.boardRef6
-                    .child(key)
-                    .setValue(BoardModel(title, content, uid, time, key))
-            }  else if (category == "category7") {
-                key = FBRef.boardRef7.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
-                FBRef.boardRef7
-                    .child(key)
-                    .setValue(BoardModel(title, content, uid, time, key))
-            } else {
+                    .setValue(Board(title, content, uid, time, key))
+            }else {
                 key = "null"
                 Log.e("error", "!!!! category가 없습니다")
             }
@@ -118,7 +105,9 @@ class BoardWriteActivity : AppCompatActivity() {
 
             // 이미지를 선택한 경우에만 이미지 업로드
             if (imageSelected) {
-                imageUpload(key)
+                CoroutineScope(Dispatchers.Main).launch{
+                    imageUpload(key)
+                }
             }
 
             // 닉네임을 가져와서 sendMsgApiRequest 호출
@@ -172,28 +161,57 @@ class BoardWriteActivity : AppCompatActivity() {
         }
     }
 
-    private fun imageUpload(key: String) {
-        val storage = Firebase.storage
-        val storageRef = storage.reference
-        val mountainsRef = storageRef.child(key + ".png")
-
-        val imageView = binding.imageArea
-
-        imageView.isDrawingCacheEnabled = true
-        imageView.buildDrawingCache()
-        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-
-        var uploadTask = mountainsRef.putBytes(data)
-        uploadTask.addOnFailureListener {
-            // Handle unsuccessful uploads
-        }.addOnSuccessListener { taskSnapshot ->
-            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
-            // ...
-        }
+    suspend fun imageUpload(key: String){ //TODO 이미지 업로드 API 호출 ( API 서비스 함수도 수정해야됨)
+//        //이미지 데이터를 ImageView에서 추출한 후 서버로 업로드
+//        withContext(Dispatchers.IO) {
+//            try {
+//                // ImageView에서 Bitmap 가져오기
+//                val imageView = binding.imageArea
+//                imageView.isDrawingCacheEnabled = true
+//                imageView.buildDrawingCache()
+//                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+//
+//                // Bitmap을 ByteArray로 변환
+//                val baos = ByteArrayOutputStream()
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+//                val imageData = baos.toByteArray()
+//
+//                // ByteArray를 RequestBody로 감싸고 MultipartBody로 변환
+//                val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), imageData)
+//                val body = MultipartBody.Part.createFormData("image", "$key.jpg", requestFile)
+//
+//                // 서버로 이미지 업로드 요청
+//                val response = apiService.uploadProfileImage(body)
+//
+//                Log.d("Upload", "Success: ${response.message}")
+//            } catch (e: Exception) {
+//                Log.e("Upload", "Error: ${e.message}")
+//            }
+//        }
     }
+
+//    private fun imageUpload(key: String) {
+//        val storage = Firebase.storage
+//        val storageRef = storage.reference
+//        val mountainsRef = storageRef.child(key + ".png")
+//
+//        val imageView = binding.imageArea
+//
+//        imageView.isDrawingCacheEnabled = true
+//        imageView.buildDrawingCache()
+//        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+//        val baos = ByteArrayOutputStream()
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+//        val data = baos.toByteArray()
+//
+//        var uploadTask = mountainsRef.putBytes(data)
+//        uploadTask.addOnFailureListener {
+//            // Handle unsuccessful uploads
+//        }.addOnSuccessListener { taskSnapshot ->
+//            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
+//            // ...
+//        }
+//    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

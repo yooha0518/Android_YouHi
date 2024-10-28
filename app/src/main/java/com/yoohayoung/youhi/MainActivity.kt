@@ -128,7 +128,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
     suspend fun saveUserDataApiRequest(uid:String, token:String){
         val request = userData(name= uid, token = token)
 

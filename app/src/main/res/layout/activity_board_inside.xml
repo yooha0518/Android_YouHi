@@ -6,7 +6,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F0E4F3">
+        android:background="@drawable/background_gradient">
 
         <ScrollView
             android:layout_width="match_parent"
