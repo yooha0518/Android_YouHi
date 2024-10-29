@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.utils.FBAuth
+import de.hdodenhof.circleimageview.CircleImageView
 
 
 class BoardListLVAdapter(private val boardList: MutableList<Board>,
@@ -27,6 +29,8 @@ class BoardListLVAdapter(private val boardList: MutableList<Board>,
         val title: TextView = itemView.findViewById(R.id.titleArea)
         val time: TextView = itemView.findViewById(R.id.timeArea)
         val TV_nickName: TextView = itemView.findViewById(R.id.TV_nickName)
+        val IV_profile: CircleImageView = itemView.findViewById(R.id.IV_profile)
+
     }
 
     // ViewHolder를 생성하는 메서드
@@ -39,12 +43,20 @@ class BoardListLVAdapter(private val boardList: MutableList<Board>,
     override fun onBindViewHolder(holder: BoardViewHolder, position: Int) {
         val board = boardList[position]
 
-        if (board.uid == FBAuth.getUid()) {
-            holder.itemLinearLayoutView.setBackgroundColor(Color.parseColor("#F0E4F3"))
-        }
+//        // 배경색 설정 (현재 사용자와 게시물 작성자 비교)
+//        if (board.uid == FBAuth.getUid()) {
+//            holder.itemLinearLayoutView.setBackgroundColor(Color.parseColor("#F0E4F3"))
+//        } else {
+//            holder.itemLinearLayoutView.setBackgroundColor(Color.TRANSPARENT) // 기본 배경색 설정
+//        }
 
         holder.title.text = board.title
         holder.time.text = board.time
+
+        // 프로필 이미지를 Glide를 사용하여 로드
+        Glide.with(holder.IV_profile.context)
+            .load("http://hihihaha.tplinkdns.com:4000/${board.uid}.jpg")
+            .into(holder.IV_profile)
 
         // 닉네임을 비동기적으로 가져와서 설정
         FBAuth.getNickName(board.uid) { nickName ->
@@ -56,6 +68,7 @@ class BoardListLVAdapter(private val boardList: MutableList<Board>,
             boardActionListener.onBoardListClick(board)
         }
     }
+
 
     // 아이템 개수 반환
     override fun getItemCount(): Int {

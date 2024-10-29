@@ -9,8 +9,8 @@
         <!-- 프로필 이미지 -->
 
 
-        <ImageView
-            android:id="@+id/imageViewProfile"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/IV_profile"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:scaleType="centerCrop"
@@ -46,6 +46,14 @@
             android:text="포인트: "
             android:textSize="18sp"
             android:layout_below="@id/textViewEmail"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"/>
+
+        <Button
+            android:id="@+id/BTN_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="프로필 사진 등록하기"
             android:layout_marginTop="8dp"
             android:layout_gravity="center"/>
 

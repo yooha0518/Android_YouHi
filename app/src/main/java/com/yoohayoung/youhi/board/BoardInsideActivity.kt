@@ -165,6 +165,7 @@ class BoardInsideActivity : AppCompatActivity() {
                         val nickName = dataSnapshot.getValue(String::class.java)
                         if (nickName != null) {
                             CoroutineScope(Dispatchers.Main).launch {
+                                Log.d("sendMsgApiRequiest","nickName: $nickName, 댓글: $commentText")
                                 sendMsgApiRequest(nickName, commentText)
                             }
                         } else {
@@ -378,7 +379,7 @@ class BoardInsideActivity : AppCompatActivity() {
 
     suspend fun sendMsgApiRequest(nickName: String, message: String) {
         val title = "$nickName 님이 댓글을 작성했습니다."
-        val request = messageData(name = nickName, message = message, title = title)
+        val request = messageData(name = getUid(), message = message, title = title)
         try {
             Log.d("sendMsgApiRequest", "nickName: $nickName, message: $message")
             val apiResponse = apiService.sendMsg(request)
