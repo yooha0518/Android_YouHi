@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.google.firebase.database.DataSnapshot
@@ -26,7 +27,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
@@ -37,76 +40,77 @@ import java.util.concurrent.TimeUnit
 class BoardWriteActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBoardWriteBinding
-
     private lateinit var apiService: ApiService
-
     private var imageSelected: Boolean = false
-
     private lateinit var category: String
+
+    // ActivityResultLauncher 정의
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data: Intent? = result.data
+            binding.imageArea.setImageURI(data?.data)
+            imageSelected = true // 이미지를 선택한 경우 플래그를 설정
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_board_write)
-
         category = intent.getStringExtra("category").toString()
 
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl("http://hihihaha.tplinkdns.com:4000")
-                .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
-                .addConverterFactory(GsonConverterFactory.create())// json 변환기 추가
+                .client(createOkHttpClient()) // Interceptor를 사용하는 클라이언트 지정
+                .addConverterFactory(GsonConverterFactory.create()) // JSON 변환기 추가
                 .build()
 
             // ApiService 인터페이스 구현체 생성
             apiService = retrofit.create(ApiService::class.java)
-
         } catch (e: KeyManagementException) {
             e.printStackTrace()
         }
 
-        binding.writeBtn.setOnClickListener {
+        binding.BTNWriteBoard.setOnClickListener {
             val title = binding.titleArea.text.toString()
             val content = binding.contentArea.text.toString()
             val uid = FBAuth.getUid()
             val time = FBAuth.getTime()
 
-            var key = ""
-
-            if (category == "category1") {
-                key = FBRef.boardRef1.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
-
-                FBRef.boardRef1
-                    .child(key)
-                    .setValue(Board(title, content, uid, time, key))
-
-            } else if (category == "category2") {
-                key = FBRef.boardRef2.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
-                FBRef.boardRef2
-                    .child(key)
-                    .setValue(Board(title, content, uid, time, key))
-            } else if (category == "category3") {
-                key = FBRef.boardRef3.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
-                FBRef.boardRef3
-                    .child(key)
-                    .setValue(Board(title, content, uid, time, key))
-            } else if (category == "category4") {
-                key = FBRef.boardRef4.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
-                FBRef.boardRef4
-                    .child(key)
-                    .setValue(Board(title, content, uid, time, key))
-            }else {
-                key = "null"
-                Log.e("error", "!!!! category가 없습니다")
+            val key = when (category) {
+                "category1" -> {
+                    val newKey = FBRef.boardRef1.push().key.toString()
+                    FBRef.boardRef1.child(newKey).setValue(Board(title, content, uid, time, newKey))
+                    newKey
+                }
+                "category2" -> {
+                    val newKey = FBRef.boardRef2.push().key.toString()
+                    FBRef.boardRef2.child(newKey).setValue(Board(title, content, uid, time, newKey))
+                    newKey
+                }
+                "category3" -> {
+                    val newKey = FBRef.boardRef3.push().key.toString()
+                    FBRef.boardRef3.child(newKey).setValue(Board(title, content, uid, time, newKey))
+                    newKey
+                }
+                "category4" -> {
+                    val newKey = FBRef.boardRef4.push().key.toString()
+                    FBRef.boardRef4.child(newKey).setValue(Board(title, content, uid, time, newKey))
+                    newKey
+                }
+                else -> {
+                    Log.e("error", "!!!! category가 없습니다")
+                    "null"
+                }
             }
 
             Toast.makeText(this, "게시글 입력 완료", Toast.LENGTH_SHORT).show()
 
             // 이미지를 선택한 경우에만 이미지 업로드
             if (imageSelected) {
-                CoroutineScope(Dispatchers.Main).launch{
-                    imageUpload(key)
+                CoroutineScope(Dispatchers.Main).launch {
+                    reqUploadBoardImage(key)
                 }
             }
 
@@ -132,9 +136,10 @@ class BoardWriteActivity : AppCompatActivity() {
             finish()
         }
 
+        // 이미지 선택을 위한 클릭 리스너 설정
         binding.imageArea.setOnClickListener {
             val gallery = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-            startActivityForResult(gallery, 200)
+            pickImageLauncher.launch(gallery)
         }
     }
 
@@ -161,64 +166,30 @@ class BoardWriteActivity : AppCompatActivity() {
         }
     }
 
-    suspend fun imageUpload(key: String){ //TODO 이미지 업로드 API 호출 ( API 서비스 함수도 수정해야됨)
-//        //이미지 데이터를 ImageView에서 추출한 후 서버로 업로드
-//        withContext(Dispatchers.IO) {
-//            try {
-//                // ImageView에서 Bitmap 가져오기
-//                val imageView = binding.imageArea
-//                imageView.isDrawingCacheEnabled = true
-//                imageView.buildDrawingCache()
-//                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-//
-//                // Bitmap을 ByteArray로 변환
-//                val baos = ByteArrayOutputStream()
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-//                val imageData = baos.toByteArray()
-//
-//                // ByteArray를 RequestBody로 감싸고 MultipartBody로 변환
-//                val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), imageData)
-//                val body = MultipartBody.Part.createFormData("image", "$key.jpg", requestFile)
-//
-//                // 서버로 이미지 업로드 요청
-//                val response = apiService.uploadProfileImage(body)
-//
-//                Log.d("Upload", "Success: ${response.message}")
-//            } catch (e: Exception) {
-//                Log.e("Upload", "Error: ${e.message}")
-//            }
-//        }
-    }
+    suspend fun reqUploadBoardImage(boardId: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                val imageView = binding.imageArea
+                imageView.isDrawingCacheEnabled = true
+                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
 
-//    private fun imageUpload(key: String) {
-//        val storage = Firebase.storage
-//        val storageRef = storage.reference
-//        val mountainsRef = storageRef.child(key + ".png")
-//
-//        val imageView = binding.imageArea
-//
-//        imageView.isDrawingCacheEnabled = true
-//        imageView.buildDrawingCache()
-//        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-//        val baos = ByteArrayOutputStream()
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-//        val data = baos.toByteArray()
-//
-//        var uploadTask = mountainsRef.putBytes(data)
-//        uploadTask.addOnFailureListener {
-//            // Handle unsuccessful uploads
-//        }.addOnSuccessListener { taskSnapshot ->
-//            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
-//            // ...
-//        }
-//    }
+                val baos = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                val imageData = baos.toByteArray()
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+                val requestFile = imageData.toRequestBody("image/jpeg".toMediaType())
+                val imageBody = MultipartBody.Part.createFormData("image", "${boardId}.jpg", requestFile)
 
-        if (resultCode == RESULT_OK && requestCode == 200) {
-            binding.imageArea.setImageURI(data?.data)
-            imageSelected = true // 이미지를 선택한 경우 플래그를 설정
+                val boardIdBody = boardId.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                Log.d("reqUploadProfileImage", "uid: $boardIdBody")
+
+                val response = apiService.uploadBoardImage(boardIdBody, imageBody)
+
+                Log.d("Upload", "Success: ${response.message}")
+            } catch (e: Exception) {
+                Log.e("Upload", "Error: ${e.message}")
+            }
         }
     }
 }

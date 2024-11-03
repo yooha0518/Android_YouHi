@@ -113,7 +113,7 @@ class MyPageActivity : AppCompatActivity() {
 
     }
 
-    suspend fun reqUploadProfileImage(bitmap: Bitmap) { //TODO : body가 안보내지는 문제 해결
+    suspend fun reqUploadProfileImage(bitmap: Bitmap) {
         val uid = getUid()
         try {
             // 비트맵 리사이징
@@ -172,7 +172,6 @@ class MyPageActivity : AppCompatActivity() {
         Glide.with(this)
             .load("http://hihihaha.tplinkdns.com:4000/${uid}.jpg")
             .into(binding.IVProfile)
-
     }
 
     private fun createOkHttpClient(): OkHttpClient {

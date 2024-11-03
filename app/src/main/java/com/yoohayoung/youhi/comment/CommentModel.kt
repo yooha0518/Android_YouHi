@@ -2,6 +2,7 @@ package com.yoohayoung.youhi.comment
 
 data class CommentModel (
     val uid : String = "",
-    val commentTitle : String = "",
-    val commentCreatedTime : String = ""
+    val comment : String = "",
+    val commentCreatedTime : String = "",
+    val id:String = ""
 )

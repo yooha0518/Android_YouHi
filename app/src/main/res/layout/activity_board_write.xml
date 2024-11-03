@@ -74,7 +74,7 @@
                     android:layout_marginTop = "20dp"/>
 
                 <Button
-                    android:id="@+id/writeBtn"
+                    android:id="@+id/BTN_write_board"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"

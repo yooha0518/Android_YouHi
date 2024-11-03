@@ -56,7 +56,10 @@ class BoardListLVAdapter(private val boardList: MutableList<Board>,
         // 프로필 이미지를 Glide를 사용하여 로드
         Glide.with(holder.IV_profile.context)
             .load("http://hihihaha.tplinkdns.com:4000/${board.uid}.jpg")
+            .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
             .into(holder.IV_profile)
+
+
 
         // 닉네임을 비동기적으로 가져와서 설정
         FBAuth.getNickName(board.uid) { nickName ->
@@ -73,10 +76,5 @@ class BoardListLVAdapter(private val boardList: MutableList<Board>,
     // 아이템 개수 반환
     override fun getItemCount(): Int {
         return boardList.size
-    }
-
-    // 클릭 리스너 설정 메서드
-    fun setOnItemClickListener(listener: (Int) -> Unit) {
-        itemClickListener = listener
     }
 }

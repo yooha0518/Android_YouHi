@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -18,6 +19,7 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -67,8 +69,8 @@ class BoardInsideActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_board_inside)
 
-        binding.boardSettingIcon.setOnClickListener {
-            showDialog()
+        binding.BTNEditBoard.setOnClickListener {
+            showEditDialog()
         }
 
         try {
@@ -95,6 +97,7 @@ class BoardInsideActivity : AppCompatActivity() {
 
         getBoardData(boardId)
         getImageData(boardId)
+        addIdToExistingComments(boardId)
 
         binding.commentBtn.setOnClickListener {
             insertComment(boardId)
@@ -105,12 +108,118 @@ class BoardInsideActivity : AppCompatActivity() {
         binding.RVComment.layoutManager = LinearLayoutManager(this)
         binding.RVComment.adapter = commentAdapter
 
-        binding.getImageArea.setOnClickListener {
-            showImageDialog()
+        binding.IVBoard.setOnClickListener {
+            showImageDialog(boardId)
         }
 
+        // 댓글 아이템 클릭 시 수정 다이얼로그 띄우기
+        // 클릭 리스너 설정
+        commentAdapter.setOnItemClickListener(object : CommentRVAdapter.OnItemClickListener {
+            override fun onEditClick(position: Int) {
+                showEditCommentDialog(position)
+            }
+
+            override fun onDeleteClick(position: Int) {
+                showDeleteCommentDialog(position)
+            }
+        })
+
+    }
+
+    private fun addIdToExistingComments(key: String) { //이전 버전 댓글들은 id가 없어서 추가하는 함수
+        FBRef.commentRef.child(key).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (commentSnapshot in dataSnapshot.children) {
+                    val commentId = commentSnapshot.key
+                    val comment = commentSnapshot.getValue(CommentModel::class.java)
+
+                    // ID가 없는 댓글만 처리
+                    if (comment != null && comment.id.isEmpty()) {
+                        val updatedComment = comment.copy(id = commentId ?: "")
+
+                        // 댓글 ID 업데이트
+                        FBRef.commentRef.child(key).child(commentId!!).setValue(updatedComment)
+                            .addOnSuccessListener {
+                                Log.d(TAG, "Comment ID updated successfully for commentId: $commentId")
+                            }
+                            .addOnFailureListener {
+                                Log.e(TAG, "Failed to update comment ID for commentId: $commentId", it)
+                            }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e(TAG, "Failed to read comments", databaseError.toException())
+            }
+        })
+    }
 
 
+    private fun showEditCommentDialog(position: Int) {
+        val commentId = commentDataList[position].id  // 이미 저장된 comment의 id (고유 키)
+        val currentComment = commentDataList[position]
+
+        val editText = EditText(this).apply {
+            setText(currentComment.comment)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("댓글 수정")
+            .setView(editText)
+            .setPositiveButton("저장") { _, _ ->
+                val updatedComment = editText.text.toString().trim()
+                if (updatedComment.isNotEmpty()) {
+                    FBRef.commentRef.child(boardId)
+                        .child(commentId)       // commentId는 수정할 댓글의 고유 키
+                        .child("comment")   // 수정할 필드
+                        .setValue(updatedComment) // 수정할 값
+                        .addOnSuccessListener {
+                            // 데이터 리스트 및 어댑터 업데이트
+                            commentDataList[position] = commentDataList[position].copy(comment = updatedComment)
+                            commentAdapter.notifyItemChanged(position)
+                            Toast.makeText(this, "댓글 수정 완료", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "댓글 수정 실패", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(this, "수정할 댓글 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    private fun showDeleteCommentDialog(position: Int) {
+        val currentComment = commentDataList[position]
+        val commentId = currentComment.id  // 댓글의 ID를 가져옵니다.
+
+        AlertDialog.Builder(this)
+            .setTitle("댓글 삭제")
+            .setMessage("이 댓글을 삭제하시겠습니까?")
+            .setPositiveButton("삭제") { _, _ ->
+                // 댓글 삭제
+                FBRef.commentRef.child(boardId)
+                    .child(commentId)       // 댓글 ID
+                    .removeValue()
+                    .addOnSuccessListener {
+                        // 데이터 리스트 및 어댑터 업데이트
+                        if (position >= 0 && position < commentDataList.size) {
+                            commentDataList.removeAt(position)
+                            commentAdapter.notifyItemRemoved(position)
+                        } else {
+                            // 인덱스가 범위를 초과한 경우
+                            Log.e("BoardInsideActivity", "Invalid position: $position")
+                        }
+                        Toast.makeText(this, "댓글 삭제 완료", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "댓글 삭제 실패", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("취소", null)
+            .show()
     }
 
     private fun getCommentData(boardId : String){
@@ -144,21 +253,26 @@ class BoardInsideActivity : AppCompatActivity() {
         val commentText = binding.commentArea.text.toString().trim()
 
         if (commentText.isNotEmpty()) {
-            FBRef.commentRef
-                .child(boardId)
-                .push()
-                .setValue(
-                    CommentModel(
-                        getUid(),
-                        commentText,
-                        FBAuth.getTime()
+            val newCommentRef = FBRef.commentRef.child(boardId).push() // 새로운 댓글 참조 생성
+            val commentId = newCommentRef.key // 고유 키 가져오기
+            if (commentId != null) {
+                FBRef.commentRef
+                    .child(boardId)
+                    .child(commentId)
+                    .setValue(
+                        CommentModel(
+                            getUid(),
+                            commentText,
+                            FBAuth.getTime(),
+                            id = commentId ?: "" // 고유 키가 없을 경우 빈 문자열
+                        )
                     )
-                )
+            }
 
             Toast.makeText(this, "댓글 입력 완료", Toast.LENGTH_SHORT).show()
             binding.commentArea.setText("")
 
-            // 닉네임을 가져와서 sendMsgApiRequest 호출 //TODO 댓글 알림 안가는 문제 해결하기
+            // 닉네임을 가져와서 sendMsgApiRequest 호출
             FBRef.userRef.child(getUid()).child("nickName")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -183,23 +297,11 @@ class BoardInsideActivity : AppCompatActivity() {
     }
 
     private fun getImageData(boardId: String){
-        // Reference to an image file in Cloud Storage
-        val storageReference = Firebase.storage.reference.child(boardId+".png")
-
-        // ImageView in your Activity
-        val imageViewFromFB = binding.getImageArea
-
-        storageReference.downloadUrl.addOnCompleteListener(OnCompleteListener{ task ->
-            if (task.isSuccessful){
-                Glide.with(this)
-                    .load(task.result)
-                    .into(imageViewFromFB)
-            }else{
-                Log.d(TAG, "이미지 업로드 실패")
-
-                binding.getImageArea.isVisible = false
-            }
-        })
+        Glide.with(this)
+            .load("http://hihihaha.tplinkdns.com:4000/${boardId}.jpg")
+            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .into(binding.IVBoard)
     }
     private fun getBoardData(boardId: String) {
         val postListener = object : ValueEventListener {
@@ -212,8 +314,17 @@ class BoardInsideActivity : AppCompatActivity() {
                         binding.usernameArea.text = nickName
                     }
                     binding.contentArea.text = board?.content
-                    binding.titleArea.text = board?.title
+                    binding.TVTitle.text = board?.title
                     binding.timeArea.text = board?.time
+
+                    val myUid = getUid()
+                    val writerUid = board.uid
+
+                    loadProfileImage(writerUid)
+
+                    if (myUid == writerUid) {
+                        binding.BTNEditBoard.isVisible = true
+                    }
                 }
             }
 
@@ -230,10 +341,17 @@ class BoardInsideActivity : AppCompatActivity() {
             "category4" -> FBRef.boardRef4.child(boardId).addListenerForSingleValueEvent(postListener)
             else -> Log.e("BoardInsideActivity", "Invalid category!")
         }
+
+
     }
 
+    private fun loadProfileImage(uid: String) {
+        Glide.with(this)
+            .load("http://hihihaha.tplinkdns.com:4000/${uid}.jpg")
+            .into(binding.IVProfile)
+    }
 
-    private fun showDialog(){
+    private fun showEditDialog(){
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog, null)
         val mBuilder = AlertDialog.Builder(this)
             .setView(mDialogView)
@@ -250,7 +368,6 @@ class BoardInsideActivity : AppCompatActivity() {
             startActivity(intent)
         }
         alertDialog.findViewById<Button>(R.id.removeBtn)?.setOnClickListener{
-//            FBRef.boardRef.child(boardId).removeValue() //게시글 삭제
             if(category.equals("category1")){
                 FBRef.boardRef1.child(boardId).removeValue() //게시글 삭제
             }else if(category.equals("category2")){
@@ -260,22 +377,10 @@ class BoardInsideActivity : AppCompatActivity() {
             }else if(category.equals("category4")){
                 FBRef.boardRef4.child(boardId).removeValue() //게시글 삭제
             }else{
-                Log.e("error", "!!!! category가 없습니다")
+                Log.e("error", "category가 없습니다")
             }
 
-            // 이미지 삭제
-            val storageReference = Firebase.storage.reference.child("$boardId.png")
-            storageReference.metadata.addOnSuccessListener { metadata ->
-                // 메타데이터가 있으면 이미지가 존재하는 것
-                storageReference.delete().addOnSuccessListener {
-                    Log.d(TAG, "이미지 삭제 성공")
-                }.addOnFailureListener {
-                    Log.d(TAG, "이미지 삭제 실패")
-                }
-            }.addOnFailureListener {
-                // 메타데이터가 없으면 이미지가 존재하지 않음
-                Log.d(TAG, "이미지가 존재하지 않음")
-            }
+            // TODO: 이미지 삭제
 
             Toast.makeText(this, "삭제 완료",Toast.LENGTH_SHORT).show()
             finish()
@@ -283,52 +388,26 @@ class BoardInsideActivity : AppCompatActivity() {
 
     }
 
-    private fun showImageDialog() {
-        val storageReference = Firebase.storage.reference.child("$boardId.png")
-
+    private fun showImageDialog(boardId : String) {
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.image_dialog, null)
         val mBuilder = AlertDialog.Builder(this)
             .setView(mDialogView)
 //            .setTitle("이미지")
         val alertDialog = mBuilder.show()
         val imageDownBtn = alertDialog.findViewById<ImageView>(R.id.imageDownBtn)
-        val imageViewFromFB = alertDialog.findViewById<ImageView>(R.id.dialog_imageArea)
+        val IV_board = alertDialog.findViewById<ImageView>(R.id.dialog_imageArea)
 
-        storageReference.downloadUrl.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                if (imageViewFromFB != null) {
-                    Glide.with(this)
-                        .load(task.result)
-                        .into(imageViewFromFB)
-                }
-            } else {
-                Log.d(TAG, "이미지 업로드 실패: ${task.exception?.message}")
-            }
+        if (IV_board != null) {
+            Glide.with(this)
+                .load("http://hihihaha.tplinkdns.com:4000/${boardId}.jpg")
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+                .into(IV_board)
         }
 
         if (imageDownBtn != null) {
             imageDownBtn.setOnClickListener {
 
-                if (imageViewFromFB != null) {
-                    // 로컬로 이미지 다운받기
-                    val localFile = File.createTempFile("images", "png")
-
-                    storageReference.getFile(localFile).addOnSuccessListener {
-                        Log.d(TAG, "이미지 다운로드 성공")
-
-                        // Save the downloaded file to the gallery
-                        val savedUri = saveImageToGallery(this, localFile, "$boardId.png")
-                        if (savedUri != null) {
-                            Toast.makeText(this, "이미지가 갤러리에 저장되었습니다.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(this, "갤러리에 이미지 저장 실패", Toast.LENGTH_SHORT).show()
-                        }
-                    }.addOnFailureListener { e ->
-                        Log.d(TAG, "이미지 다운로드 실패: ${e.message}")
-                    }
-                } else {
-                    Log.d(TAG, "ImageView is null")
-                }
             }
         } else {
             Log.d(TAG, "imageDownBtn is null")

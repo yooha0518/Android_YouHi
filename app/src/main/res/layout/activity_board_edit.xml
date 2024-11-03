@@ -68,7 +68,7 @@
                     android:layout_marginLeft="20dp"/>
 
                 <ImageView
-                    android:id="@+id/imageArea"
+                    android:id="@+id/IV_board"
                     android:src="@drawable/plusbtn"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"

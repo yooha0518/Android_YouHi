@@ -23,6 +23,13 @@ interface ApiService {
     @POST("/postProfileImage")
     suspend fun uploadProfileImage(
         @Part("nickname") nickname: RequestBody,
+        @Part image: MultipartBody.Part,
+    ): uploadImageResponseModel
+
+    @Multipart
+    @POST("/postBoardImage")
+    suspend fun uploadBoardImage(
+        @Part("boardID") boardID: RequestBody,
         @Part image: MultipartBody.Part
     ): uploadImageResponseModel
 

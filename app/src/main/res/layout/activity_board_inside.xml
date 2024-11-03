@@ -21,26 +21,25 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp">
+                    android:layout_height="70dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:id="@+id/titleArea"
-                            android:text="title"
-                            android:textColor="@color/black"
-                            android:textStyle="bold"
-                            android:textSize="20dp"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:layout_marginLeft="50dp"
-                            android:layout_marginRight="50dp" />
+                        android:layout_height="match_parent"
+                        android:background="@drawable/background_botton_radius"
+                        android:layout_marginBottom="10dp"
+                        android:elevation="5dp">
 
                         <ImageView
-                            android:id="@+id/boardSettingIcon"
+                            android:layout_width="100dp"
+                            android:layout_height="40dp"
+                            android:layout_margin="10dp"
+                            android:src="@drawable/min_logo"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/BTN_edit_board"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:visibility="invisible"
@@ -56,52 +55,92 @@
 
                 </LinearLayout>
 
+
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:background="@color/black">
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="10dp">
 
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/IV_profile"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/default_profile"/>
+                    <TextView
+                        android:id="@+id/usernameArea"
+                        android:text="유저 이름"
+                        android:layout_width="0dp"
+                        android:layout_weight="8"
+                        android:layout_height="wrap_content"
+                        android:textSize="24dp"
+                        android:paddingLeft="10dp"
+                        android:textColor="#3F3F3F"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"/>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/usernameArea"
-                    android:text="유저 이름"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="20dp"
-                    android:paddingLeft="20dp"
-                    android:textColor="@color/black"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"/>
 
                 <TextView
                     android:id="@+id/timeArea"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="20dp"
-                    android:text="time"/>
+                    android:text="time"
+                    android:layout_marginTop="5dp"/>
 
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/background_radius"
+                    android:background="@drawable/background_board_item"
                     android:orientation="vertical"
                     android:layout_margin="20dp"
                     android:padding="20dp"
                     android:elevation="10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
                         <TextView
-                            android:id="@+id/contentArea"
-                            android:layout_width="match_parent"
+                            android:id="@+id/TV_title"
+                            android:layout_width="0dp"
+                            android:layout_weight="9"
                             android:layout_height="wrap_content"
                             android:padding="10dp"
-                            android:text="여기는 내용"
-                            android:textColor="@color/black"/>
+                            android:text="여기는 제목"
+                            android:textSize="22dp"
+                            android:textColor="#333333"/>
+
+                        <ImageView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/icon_unlick"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:background="#979797">
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/contentArea"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:text="여기는 내용"
+                        android:textColor="#333333"
+                        android:textSize="18dp"/>
 
 
 
                     <ImageView
-                        android:id="@+id/getImageArea"
+                        android:id="@+id/IV_board"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"/>
 
@@ -120,7 +159,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_alignParentBottom="true"
-            android:background="@color/white"
+            android:background="@drawable/background_top_radius"
             android:layout_height="60dp">
 
             <EditText
@@ -133,14 +172,17 @@
                 android:layout_marginLeft="10dp"
                 />
 
+
             <ImageView
                 android:id="@+id/commentBtn"
-                android:src="@drawable/btn_comment_write"
+                android:src="@drawable/icon_write"
                 android:layout_width="0dp"
                 android:layout_weight="2"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"/>
 
         </LinearLayout>
 
