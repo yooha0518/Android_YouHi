@@ -1,5 +1,6 @@
 package com.yoohayoung.youhi.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -17,7 +18,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.yoohayoung.youhi.R
+import com.yoohayoung.youhi.board.BoardListActivity
+import com.yoohayoung.youhi.contentList.ContentListActivity
 import com.yoohayoung.youhi.databinding.FragmentHomeBinding
+import com.yoohayoung.youhi.event.CreateEventActivity
+import com.yoohayoung.youhi.friend.FriendSearchActivity
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class HomeFragment : Fragment() {
 
@@ -55,6 +62,24 @@ class HomeFragment : Fragment() {
             Log.d("homeFragment", token)
         })
 
+        binding.BTNFindFriend.setOnClickListener{
+            val intent = Intent(context, FriendSearchActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.BTNDeveloperProfile.setOnClickListener{
+            val intent = Intent(context, ContentListActivity::class.java)
+            intent.putExtra("category", "category1")
+            startActivity(intent)
+        }
+
+        binding.BTNCalender.setOnClickListener{
+            val intent = Intent(context, CreateEventActivity::class.java)
+            val currentDate = LocalDate.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            intent.putExtra("selectedDate", currentDate.format(formatter))
+            startActivity(intent)
+        }
 
         binding.IVMenubarFriend.setOnClickListener{
             Log.d("HomeFragment","click")

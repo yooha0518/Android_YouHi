@@ -1,8 +1,10 @@
 package com.yoohayoung.youhi.board
 
+import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,13 +21,13 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.android.gms.tasks.OnCompleteListener
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import com.yoohayoung.youhi.ApiService
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.comment.CommentModel
@@ -47,6 +49,12 @@ import java.io.IOException
 import java.io.OutputStream
 import java.security.KeyManagementException
 import java.util.concurrent.TimeUnit
+import android.graphics.drawable.Drawable
+import android.view.ViewGroup
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.request.target.Target
+import java.io.FileOutputStream
 
 class BoardInsideActivity : AppCompatActivity() {
 
@@ -76,7 +84,7 @@ class BoardInsideActivity : AppCompatActivity() {
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://hihihaha.tplinkdns.com:4000")
+                .baseUrl("http://youhi.tplinkdns.com:4000")
                 .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
                 .addConverterFactory(GsonConverterFactory.create())// json 변환기 추가
                 .build()
@@ -88,16 +96,15 @@ class BoardInsideActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
-        //아래의 방법은 게시글의 id로 데이터를 가져오는 방식
         boardId = intent.getStringExtra("boardId").toString()
         category = intent.getStringExtra("category").toString()
 
-        Log.d("게시물의 boardId", "$boardId")
-        Log.d("게시물의 category", "$category")
+//        Log.d("게시물의 boardId", "$boardId")
+//        Log.d("게시물의 category", "$category")
 
         getBoardData(boardId)
         getImageData(boardId)
-        addIdToExistingComments(boardId)
+//        addIdToExistingComments(boardId)
 
         binding.commentBtn.setOnClickListener {
             insertComment(boardId)
@@ -119,9 +126,6 @@ class BoardInsideActivity : AppCompatActivity() {
                 showEditCommentDialog(position)
             }
 
-            override fun onDeleteClick(position: Int) {
-                showDeleteCommentDialog(position)
-            }
         })
 
     }
@@ -157,96 +161,95 @@ class BoardInsideActivity : AppCompatActivity() {
 
 
     private fun showEditCommentDialog(position: Int) {
-        val commentId = commentDataList[position].id  // 이미 저장된 comment의 id (고유 키)
+        val commentId = commentDataList[position].id  // 수정할 댓글 ID
         val currentComment = commentDataList[position]
 
-        val editText = EditText(this).apply {
-            setText(currentComment.comment)
-        }
+        // 다이얼로그 레이아웃 인플레이트
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_comment, null)
+        val editText = dialogView.findViewById<EditText>(R.id.et_edit_comment)
+        val btnSave = dialogView.findViewById<Button>(R.id.btn_save)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        val btn_delete = dialogView.findViewById<Button>(R.id.btn_delete)
 
-        AlertDialog.Builder(this)
-            .setTitle("댓글 수정")
-            .setView(editText)
-            .setPositiveButton("저장") { _, _ ->
-                val updatedComment = editText.text.toString().trim()
-                if (updatedComment.isNotEmpty()) {
-                    FBRef.commentRef.child(boardId)
-                        .child(commentId)       // commentId는 수정할 댓글의 고유 키
-                        .child("comment")   // 수정할 필드
-                        .setValue(updatedComment) // 수정할 값
-                        .addOnSuccessListener {
-                            // 데이터 리스트 및 어댑터 업데이트
-                            commentDataList[position] = commentDataList[position].copy(comment = updatedComment)
-                            commentAdapter.notifyItemChanged(position)
-                            Toast.makeText(this, "댓글 수정 완료", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(this, "댓글 수정 실패", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(this, "수정할 댓글 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("취소", null)
-            .show()
-    }
+        editText.setText(currentComment.comment)
 
-    private fun showDeleteCommentDialog(position: Int) {
-        val currentComment = commentDataList[position]
-        val commentId = currentComment.id  // 댓글의 ID를 가져옵니다.
+        // 다이얼로그 생성
+        val dialog = Dialog(this)
+        dialog.setContentView(dialogView)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.setCancelable(false)  // 다이얼로그 바깥 터치로 닫히지 않도록 설정
 
-        AlertDialog.Builder(this)
-            .setTitle("댓글 삭제")
-            .setMessage("이 댓글을 삭제하시겠습니까?")
-            .setPositiveButton("삭제") { _, _ ->
-                // 댓글 삭제
+        // 저장 버튼 클릭 리스너
+        btnSave.setOnClickListener {
+            val updatedComment = editText.text.toString().trim()
+            if (updatedComment.isNotEmpty()) {
                 FBRef.commentRef.child(boardId)
-                    .child(commentId)       // 댓글 ID
-                    .removeValue()
+                    .child(commentId)
+                    .child("comment")
+                    .setValue(updatedComment)
                     .addOnSuccessListener {
                         // 데이터 리스트 및 어댑터 업데이트
-                        if (position >= 0 && position < commentDataList.size) {
-                            commentDataList.removeAt(position)
-                            commentAdapter.notifyItemRemoved(position)
-                        } else {
-                            // 인덱스가 범위를 초과한 경우
-                            Log.e("BoardInsideActivity", "Invalid position: $position")
-                        }
-                        Toast.makeText(this, "댓글 삭제 완료", Toast.LENGTH_SHORT).show()
+                        commentDataList[position] = commentDataList[position].copy(comment = updatedComment)
+                        commentAdapter.notifyItemChanged(position)
+                        Toast.makeText(this, "댓글 수정 완료", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(this, "댓글 삭제 실패", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "댓글 수정 실패", Toast.LENGTH_SHORT).show()
                     }
+            } else {
+                Toast.makeText(this, "수정할 댓글 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("취소", null)
-            .show()
+        }
+
+
+        // 삭제 버튼 클릭 리스너
+        btn_delete.setOnClickListener {
+            FBRef.commentRef.child(boardId)
+                .child(commentId)       // 댓글 ID
+                .removeValue()
+                .addOnSuccessListener {
+                    // 데이터 리스트 및 어댑터 업데이트
+                    if (position >= 0 && position < commentDataList.size) {
+                        commentDataList.removeAt(position)
+                        commentAdapter.notifyItemRemoved(position)
+                    } else {
+                        // 인덱스가 범위를 초과한 경우
+                        Log.e("BoardInsideActivity", "Invalid position: $position")
+                    }
+                    Toast.makeText(this, "댓글 삭제 완료", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "댓글 삭제 실패", Toast.LENGTH_SHORT).show()
+                }
+
+            dialog.dismiss()
+        }
+        // 취소 버튼 클릭 리스너
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+        // 다이얼로그 표시
+        dialog.show()
     }
 
     private fun getCommentData(boardId : String){
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-
                 commentDataList.clear()
-
                 for (dataModel in dataSnapshot.children) {
                     val item = dataModel.getValue(CommentModel::class.java)
                     commentDataList.add(item!!)
-                    Log.d("comment",item.toString())
                 }
-
                 commentAdapter.notifyDataSetChanged()
-
             }
-
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
             }
         }
         FBRef.commentRef.child(boardId).addValueEventListener(postListener)
-
-
     }
 
     private fun insertComment(boardId: String) {
@@ -296,13 +299,39 @@ class BoardInsideActivity : AppCompatActivity() {
         }
     }
 
-    private fun getImageData(boardId: String){
+    private fun getImageData(boardId: String) {
         Glide.with(this)
-            .load("http://hihihaha.tplinkdns.com:4000/${boardId}.jpg")
+            .load("http://youhi.tplinkdns.com:4000/${boardId}.jpg")
             .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
             .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    // 이미지 로드 실패 시 IVBoard 높이를 0dp로 설정
+                    binding.IVBoard.layoutParams.height = 0
+                    binding.IVBoard.requestLayout()
+                    return false
+                }
+
+                override fun onResourceReady( //이미지 로드 성공시, 실행
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+
+            })
             .into(binding.IVBoard)
     }
+
     private fun getBoardData(boardId: String) {
         val postListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -347,15 +376,18 @@ class BoardInsideActivity : AppCompatActivity() {
 
     private fun loadProfileImage(uid: String) {
         Glide.with(this)
-            .load("http://hihihaha.tplinkdns.com:4000/${uid}.jpg")
+            .load("http://youhi.tplinkdns.com:4000/${uid}.jpg")
+            .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
+            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
             .into(binding.IVProfile)
     }
 
     private fun showEditDialog(){
-        val mDialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog, null)
+        val mDialogView = LayoutInflater.from(this).inflate(R.layout.edit_board_dialog, null)
         val mBuilder = AlertDialog.Builder(this)
             .setView(mDialogView)
-            .setTitle("게시글 수정/삭제")
+
 
         val alertDialog = mBuilder.show()
         alertDialog.findViewById<Button>(R.id.editBtn)?.setOnClickListener{
@@ -392,26 +424,62 @@ class BoardInsideActivity : AppCompatActivity() {
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.image_dialog, null)
         val mBuilder = AlertDialog.Builder(this)
             .setView(mDialogView)
-//            .setTitle("이미지")
         val alertDialog = mBuilder.show()
         val imageDownBtn = alertDialog.findViewById<ImageView>(R.id.imageDownBtn)
         val IV_board = alertDialog.findViewById<ImageView>(R.id.dialog_imageArea)
 
+        val imageUrl = "http://youhi.tplinkdns.com:4000/${boardId}.jpg"
+
         if (IV_board != null) {
             Glide.with(this)
-                .load("http://hihihaha.tplinkdns.com:4000/${boardId}.jpg")
+                .load(imageUrl)
                 .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
                 .skipMemoryCache(true) // 메모리 캐시 사용 안 함
                 .into(IV_board)
         }
 
-        if (imageDownBtn != null) {
-            imageDownBtn.setOnClickListener {
-
-            }
-        } else {
-            Log.d(TAG, "imageDownBtn is null")
+        imageDownBtn?.setOnClickListener {
+            downloadAndSaveImage(this, imageUrl, "${boardId}.png")
         }
+    }
+
+    // Glide를 이용해 이미지 다운로드 후 저장
+    private fun downloadAndSaveImage(context: Context, imageUrl: String, fileName: String) {
+        Glide.with(context)
+            .asBitmap()
+            .load(imageUrl)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    val file = File(context.cacheDir, fileName)
+                    try {
+                        val outputStream = FileOutputStream(file)
+                        resource.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+
+                        // 저장 실행
+                        val savedUri = saveImageToGallery(context, file, fileName)
+                        if (savedUri != null) {
+                            Toast.makeText(context, "이미지 저장 완료", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                        Toast.makeText(context, "파일 저장 오류", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    // 필요 시 처리 가능
+                }
+
+                override fun onLoadFailed(errorDrawable: Drawable?) {
+                    Toast.makeText(context, "이미지 다운로드 실패", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     fun saveImageToGallery(context: Context, sourceFile: File, fileName: String): Uri? {

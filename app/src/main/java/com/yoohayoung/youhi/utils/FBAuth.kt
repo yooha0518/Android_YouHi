@@ -49,5 +49,6 @@ class FBAuth {
                 callback("") // uid가 비어 있는 경우 빈 문자열을 반환
             }
         }
+
     }
 }

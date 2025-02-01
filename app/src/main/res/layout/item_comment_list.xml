@@ -9,6 +9,7 @@
     android:layout_marginTop="5dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/IV_profile"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="60dp"
@@ -21,65 +22,71 @@
         android:layout_weight="7"
         android:orientation="vertical"
         android:layout_marginLeft="10dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:id="@+id/TV_nickName"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginBottom="0dp"
-                android:gravity="center_vertical"
-                android:text="유하영"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="end">
+                android:layout_height="wrap_content"
+                android:text="유하영"
+                android:textColor="@color/gray"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
 
-                <Button
-                    android:id="@+id/BTN_edit_comment"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:gravity="center"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:background="@drawable/icon_edit_comment"
-                    android:visibility="invisible"/>
-
-                <Button
-                    android:id="@+id/BTN_delete_comment"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:gravity="center"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:background="@drawable/icon_delete_comment"
-                    android:visibility="invisible"/>
-            </LinearLayout>
+            <TextView
+                android:id="@+id/TV_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="time"
+                android:textColor="#999999"
+                android:textSize="13sp"
+                android:gravity="end"
+                android:layout_marginRight="10dp"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/TV_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="time"
-            android:textColor="#999999"
-            android:textSize="13sp"
-            android:layout_marginTop="5dp"/>
+
 
         <TextView
             android:id="@+id/TV_comment"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="여기는 댓글 내용입니다."
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="5dp"
+            android:textSize="18sp"/>
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:gravity="end">-->
+
+
+
+<!--            <Button-->
+<!--                android:id="@+id/BTN_edit_comment"-->
+<!--                android:layout_width="30dp"-->
+<!--                android:layout_height="30dp"-->
+<!--                android:gravity="center"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                android:background="@drawable/icon_edit_comment"-->
+<!--                android:visibility="invisible"/>-->
+
+<!--            <Button-->
+<!--                android:id="@+id/BTN_delete_comment"-->
+<!--                android:layout_width="30dp"-->
+<!--                android:layout_height="30dp"-->
+<!--                android:gravity="center"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                android:background="@drawable/icon_delete_comment"-->
+<!--                android:visibility="invisible"/>-->
+<!--        </LinearLayout>-->
+
+
 
     </LinearLayout>
 </LinearLayout>

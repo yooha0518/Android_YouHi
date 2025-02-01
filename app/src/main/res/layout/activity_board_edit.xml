@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout>
-
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".board.BoardEditActivity">
+        tools:context=".board.BoardEditActivity"
+        android:orientation="vertical"
+        android:background="@drawable/background_gradient">
+
+        <TextView
+            android:id="@+id/BTN_toggle_friend_list"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="게시글 수정"
+            android:gravity="center"
+            android:textSize="25dp"
+            android:textColor="@color/blue"
+            android:background="@drawable/background_botton_radius"
+            android:elevation="10dp"/>
 
         <ScrollView
             android:layout_height="match_parent"
@@ -16,73 +27,62 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_margin="10dp">
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp">
-
-                    <TextView
-                        android:text="수정 페이지"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/background_radius"
+                    android:layout_margin="10dp">
+                    <EditText
+                        android:id="@+id/titleArea"
+                        android:layout_margin="20dp"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:textColor="@color/black"/>
+                        android:layout_height="40dp"
+                        android:background="@android:color/transparent"
+                        android:hint="제목을 입력하세요"
+                        android:fontFamily="@font/jua"
+                        android:textSize="20dp"/>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="#999999"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginLeft="20dp"/>
+
+                    <EditText
+                        android:id="@+id/contentArea"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="20dp"
+                        android:background="@android:color/transparent"
+                        android:hint="내용을 입력하세요"
+                        android:fontFamily="@font/jua"/>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#999999"></LinearLayout>
-
-                <EditText
-                    android:id="@+id/titleArea"
-                    android:layout_margin="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:background="@android:color/transparent"
-                    android:hint="제목을 입력하세요"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#999999"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginLeft="20dp"/>
-
-
-                <EditText
-                    android:id="@+id/contentArea"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_margin="20dp"
-                    android:background="@android:color/transparent"
-                    android:hint="내용을 입력하세요"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#999999"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginLeft="20dp"/>
 
                 <ImageView
                     android:id="@+id/IV_board"
-                    android:src="@drawable/plusbtn"
+                    android:src="@drawable/plusbtn_blue"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
+                    android:layout_height="150dp"
                     android:layout_marginTop = "20dp"/>
 
                 <Button
                     android:id="@+id/editBtn"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="50dp"
                     android:layout_marginRight="20dp"
-                    android:background="@drawable/background_radius_maincolor"
-                    android:text="수정" />
+                    android:background="@drawable/background_radius_blue"
+                    android:text="수정 완료"
+                    android:textColor="@color/white"
+                    android:textSize="20dp" />
 
 
             </LinearLayout>

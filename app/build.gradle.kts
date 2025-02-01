@@ -24,8 +24,8 @@ android {
         applicationId = "com.yoohayoung.youhi"
         minSdk = 28
         targetSdk = 34
-        versionCode = 5
-        versionName = "5.0"
+        versionCode = 8
+        versionName = "5.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,6 +39,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.utils.FBAuth
 import de.hdodenhof.circleimageview.CircleImageView
@@ -55,8 +56,10 @@ class BoardListLVAdapter(private val boardList: MutableList<Board>,
 
         // 프로필 이미지를 Glide를 사용하여 로드
         Glide.with(holder.IV_profile.context)
-            .load("http://hihihaha.tplinkdns.com:4000/${board.uid}.jpg")
+            .load("http://youhi.tplinkdns.com:4000/${board.uid}.jpg")
             .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
+            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
             .into(holder.IV_profile)
 
 

@@ -56,8 +56,15 @@ class BoardEditActivity : AppCompatActivity() {
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val data: Intent? = result.data
-            binding.IVBoard.setImageURI(data?.data)
-            imageSelected = true // 이미지를 선택한 경우 플래그를 설정
+            val imageUri = data?.data
+
+            if (imageUri != null) {
+                Glide.with(this)
+                    .load(imageUri)
+                    .into(binding.IVBoard)
+
+                imageSelected = true
+            }
         }
     }
 
@@ -70,7 +77,7 @@ class BoardEditActivity : AppCompatActivity() {
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://hihihaha.tplinkdns.com:4000")
+                .baseUrl("http://youhi.tplinkdns.com:4000")
                 .client(createOkHttpClient()) // Interceptor를 사용하는 클라이언트 지정
                 .addConverterFactory(GsonConverterFactory.create()) // JSON 변환기 추가
                 .build()
@@ -200,12 +207,13 @@ class BoardEditActivity : AppCompatActivity() {
 
     private fun getBoardImage(boardId : String){
         Glide.with(this)
-            .load("http://hihihaha.tplinkdns.com:4000/${boardId}.jpg")
+            .load("http://youhi.tplinkdns.com:4000/${boardId}.jpg")
             .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
             .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .error(R.drawable.plusbtn_blue)
             .into(binding.IVBoard)
         
-        Log.d("게시글 이미지 로드","http://hihihaha.tplinkdns.com:4000/${boardId}.jpg 가 업로드 됨")
+//        Log.d("게시글 이미지 로드","http://youhi.tplinkdns.com:4000/${boardId}.jpg 가 업로드 됨")
     }
 
     suspend fun reqUploadBoardImage(boardId: String) {
@@ -247,13 +255,4 @@ class BoardEditActivity : AppCompatActivity() {
             .build()
     }
 
-    //이미지 선택했을때 실행되는 메서드
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(resultCode == RESULT_OK && requestCode ==200){
-            binding.IVBoard.setImageURI(data?.data)
-            imageSelected = true // 이미지를 선택한 경우 플래그를 설정
-        }
-    }
 }

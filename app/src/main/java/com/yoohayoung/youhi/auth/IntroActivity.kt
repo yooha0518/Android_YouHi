@@ -35,18 +35,6 @@ class IntroActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.noAccountBtn.setOnClickListener {
-            auth.signInAnonymously()
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        //기존의 Acitivity를 날려서 뒤로가기했을때, 앱이 나가지도록 함
-                        val intent = Intent(this, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                    } else {
-                        Toast.makeText(this,"실패", Toast.LENGTH_LONG).show()
-                    }
-                }
-        }
+
     }
 }

@@ -32,12 +32,17 @@ class JoinActivity : AppCompatActivity() {
         binding.joinBtn.setOnClickListener {
             var isGoToJoin = true
 
+            val name = binding.nameArea.text.toString()
             val nickName = binding.nickNameArea.text.toString()
             val email = binding.emailArea.text.toString()
             val password1 = binding.passwordArea1.text.toString()
             val password2 = binding.passwordArea2.text.toString()
             val point = 0
 
+            if(name.isEmpty()){
+                Toast.makeText(this, "이름을 입력해주세요",Toast.LENGTH_LONG).show()
+                isGoToJoin = false
+            }
             if(email.isEmpty()){
                 Toast.makeText(this, "이메일을 입력해주세요",Toast.LENGTH_LONG).show()
                 isGoToJoin = false
@@ -67,7 +72,7 @@ class JoinActivity : AppCompatActivity() {
 
                             Log.d("joinActivity","uid: ${FBAuth.getUid()}")
 
-                            FBRef.userRef.child(FBAuth.getUid()).setValue(UserModel(email,nickName,point))
+                            FBRef.userRef.child(FBAuth.getUid()).setValue(UserModel(email, nickName, point, name))
                             //기존의 Acitivity를 날려서 뒤로가기했을때, 앱이 나가지도록 함
                             val intent = Intent(this, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

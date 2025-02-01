@@ -6,7 +6,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".board.BoardWriteActivity"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/background_gradient">
+
+        <TextView
+            android:id="@+id/BTN_toggle_friend_list"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="게시글 작성"
+            android:gravity="center"
+            android:textSize="25dp"
+            android:textColor="@color/mainColor"
+            android:background="@drawable/background_botton_radius"
+            android:elevation="10dp"/>
 
         <ScrollView
             android:layout_height="match_parent"
@@ -19,69 +31,58 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp">
-
-                    <TextView
-                        android:text="글쓰기 페이지"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/background_radius"
+                    android:layout_margin="10dp">
+                    <EditText
+                        android:id="@+id/titleArea"
+                        android:layout_margin="20dp"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:textColor="@color/black"/>
+                        android:layout_height="40dp"
+                        android:background="@android:color/transparent"
+                        android:hint="제목을 입력하세요"
+                        android:fontFamily="@font/jua"
+                        android:textSize="20dp"/>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="#999999"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginLeft="20dp"/>
+
+
+                    <EditText
+                        android:id="@+id/contentArea"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="20dp"
+                        android:background="@android:color/transparent"
+                        android:hint="내용을 입력하세요"
+                        android:fontFamily="@font/jua"/>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#999999"></LinearLayout>
 
-                <EditText
-                    android:id="@+id/titleArea"
-                    android:layout_margin="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:background="@android:color/transparent"
-                    android:hint="제목을 입력하세요"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#999999"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginLeft="20dp"/>
-
-
-                <EditText
-                    android:id="@+id/contentArea"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:background="@android:color/transparent"
-                    android:hint="내용을 입력하세요"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#999999"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginLeft="20dp"/>
 
                 <ImageView
                     android:id="@+id/imageArea"
                     android:src="@drawable/plusbtn"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
+                    android:layout_height="150dp"
                     android:layout_marginTop = "20dp"/>
 
                 <Button
                     android:id="@+id/BTN_write_board"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="50dp"
                     android:layout_marginRight="20dp"
                     android:background="@drawable/background_radius_maincolor"
-                    android:text="입력" />
+                    android:text="작성 완료"
+                    android:textColor="@color/white"
+                    android:textSize="20dp"/>
 
 
             </LinearLayout>

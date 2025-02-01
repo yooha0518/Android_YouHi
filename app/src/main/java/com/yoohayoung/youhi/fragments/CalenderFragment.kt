@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import com.yoohayoung.youhi.CalendarAdapter
@@ -20,7 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.yoohayoung.youhi.CreateEventActivity
+import com.yoohayoung.youhi.event.CreateEventActivity
 import com.yoohayoung.youhi.databinding.FragmentCalenderBinding
 import com.yoohayoung.youhi.event.DayEventAdapter
 import com.yoohayoung.youhi.event.EventModel

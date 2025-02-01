@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://hihihaha.tplinkdns.com:4000")
+                .baseUrl("http://youhi.tplinkdns.com:4000")
                 .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.main_dialog, null)
         val mBuilder = AlertDialog.Builder(this)
             .setView(mDialogView)
-            .setTitle("메뉴")
+
 
         val alertDialog = mBuilder.show()
         alertDialog.findViewById<Button>(R.id.mypage_btn)?.setOnClickListener{

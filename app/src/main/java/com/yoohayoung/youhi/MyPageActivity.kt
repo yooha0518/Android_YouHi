@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -61,12 +62,16 @@ class MyPageActivity : AppCompatActivity() {
             // Glide로 선택된 이미지를 ImageView에 표시
             Glide.with(this)
                 .load(it)
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
                 .into(binding.IVProfile)
 
             // Glide를 사용해 Bitmap으로 로드 후 서버 업로드
             Glide.with(this)
                 .asBitmap() // Bitmap으로 로드
                 .load(it)
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
                 .into(object : com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
                     override fun onResourceReady(resource: Bitmap, transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?) {
                         // Bitmap을 받으면 reqUploadProfileImage 호출
@@ -95,7 +100,7 @@ class MyPageActivity : AppCompatActivity() {
         try {
             // Retrofit 객체 초기화
             val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://hihihaha.tplinkdns.com:4000")
+                .baseUrl("http://youhi.tplinkdns.com:4000")
                 .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
                 .addConverterFactory(GsonConverterFactory.create())// json 변환기 추가
                 .build()
@@ -153,6 +158,7 @@ class MyPageActivity : AppCompatActivity() {
                     val user = dataSnapshot.getValue(UserModel::class.java)
                     if (user != null) {
                         binding.textViewNickname.text = "닉네임: ${user.nickName}"
+                        binding.textViewName.text = "이름: ${user.name}"
                         binding.textViewEmail.text = "이메일: ${user.email}"
                         binding.textViewPoints.text = "포인트: ${user.point}"
 
@@ -170,7 +176,9 @@ class MyPageActivity : AppCompatActivity() {
 
     private fun loadProfileImage(uid: String) {
         Glide.with(this)
-            .load("http://hihihaha.tplinkdns.com:4000/${uid}.jpg")
+            .load("http://youhi.tplinkdns.com:4000/${uid}.jpg")
+            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
             .into(binding.IVProfile)
     }
 

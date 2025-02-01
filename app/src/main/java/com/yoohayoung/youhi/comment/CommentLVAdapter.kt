@@ -1,12 +1,14 @@
 package com.yoohayoung.youhi.comment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.utils.FBAuth
 
@@ -14,7 +16,6 @@ class CommentRVAdapter(private val commentList: MutableList<CommentModel>) : Rec
 
     interface OnItemClickListener {
         fun onEditClick(position: Int)
-        fun onDeleteClick(position: Int)
     }
 
     private var listener: OnItemClickListener? = null
@@ -27,11 +28,10 @@ class CommentRVAdapter(private val commentList: MutableList<CommentModel>) : Rec
 
     // ViewHolder 클래스 정의
     class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val comment: TextView = itemView.findViewById(R.id.TV_comment)
-        val time: TextView = itemView.findViewById(R.id.TV_time)
+        val IV_profile: ImageView = itemView.findViewById(R.id.IV_profile)
+        val TV_comment: TextView = itemView.findViewById(R.id.TV_comment)
+        val TV_time: TextView = itemView.findViewById(R.id.TV_time)
         val nickname: TextView = itemView.findViewById(R.id.TV_nickName)
-        val BTN_edit_comment: TextView = itemView.findViewById(R.id.BTN_edit_comment)
-        val BTN_delete_comment: TextView = itemView.findViewById(R.id.BTN_delete_comment)
     }
 
     // 아이템의 개수 반환
@@ -45,38 +45,44 @@ class CommentRVAdapter(private val commentList: MutableList<CommentModel>) : Rec
         return CommentViewHolder(view)
     }
 
+    // 프로필 이미지 URL 반환
+    private fun loadProfileImage(uid: String): String {
+        return "http://youhi.tplinkdns.com:4000/${uid}.jpg"
+    }
+
     // ViewHolder에 데이터를 바인딩
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         val comment = commentList[position]
-        holder.comment.text = comment.comment
-        holder.time.text = comment.commentCreatedTime
+        holder.TV_comment.text = comment.comment
+        holder.TV_time.text = comment.commentCreatedTime
 
         // 닉네임을 비동기적으로 가져와서 설정
         FBAuth.getNickName(comment.uid) { nickName ->
             holder.nickname.text = nickName
         }
 
+        // 프로필 이미지 로드
+        val profileImageUrl = loadProfileImage(comment.uid)
+        Glide.with(holder.itemView.context)
+            .load(profileImageUrl)
+            .placeholder(R.drawable.default_profile) // 기본 이미지 설정 가능
+            .error(R.drawable.default_profile) // 에러 시 표시할 이미지
+            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .into(holder.IV_profile)
+
         val myUid = FBAuth.getUid()
         val writerUid = comment.uid
 
-        Log.d("myUID:",myUid)
-        Log.d("writerUid:",writerUid)
+//        Log.d("myUID:",myUid)
+//        Log.d("writerUid:",writerUid)
 
         if (myUid == writerUid) {
-            holder.BTN_edit_comment.isVisible = true
-            holder.BTN_delete_comment.isVisible = true
-        }
-
-
-        // BTN_comment_edit 버튼 클릭 리스너 설정
-        holder.BTN_edit_comment.setOnClickListener {
-            // 클릭된 위치의 인덱스를 리스너에 전달
-            listener?.onEditClick(position)
-        }
-
-        // BTN_comment_delete 버튼 클릭 리스너 설정
-        holder.BTN_delete_comment.setOnClickListener {
-            listener?.onDeleteClick(position)
+            // 아이템 롱 클릭 리스너 추가
+            holder.itemView.setOnLongClickListener {
+                listener?.onEditClick(position)
+                true // 이벤트 소비
+            }
         }
     }
 }

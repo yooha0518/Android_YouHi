@@ -19,7 +19,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".CreateEventActivity"
+            android:name=".event.CreateEventActivity"
             android:exported="false" />
 
         <meta-data

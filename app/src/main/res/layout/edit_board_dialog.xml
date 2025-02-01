@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_gradient">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:textSize="20dp"
+        android:text="게시글 수정 / 삭제"
+        android:gravity="center"
+        android:layout_margin="20dp"
+        android:textColor="@color/black"/>
+    <Button
+        android:id="@+id/editBtn"
+        android:text="수정"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@drawable/background_radius_skyblue"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="10dp"
+        android:textSize="20dp"
+        android:textColor="@color/white"
+        android:elevation="10dp"/>
+
+    <Button
+        android:id="@+id/removeBtn"
+        android:text="삭제"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@drawable/background_radius_pink"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
+        android:textSize="20dp"
+        android:textColor="@color/white"/>
+</LinearLayout>
