@@ -72,7 +72,7 @@ class FriendFragment : Fragment(),FriendAdapter.FriendActionListener {
             it.findNavController().navigate(R.id.action_friendFragment_to_homeFragment)
         }
         binding.IVMenubarLike.setOnClickListener{
-            it.findNavController().navigate(R.id.action_friendFragment_to_bookmarkFragment)
+            it.findNavController().navigate(R.id.action_friendFragment_to_likeFragment)
         }
         binding.IVMenubarBoard.setOnClickListener{
             it.findNavController().navigate(R.id.action_friendFragment_to_talkFragment)

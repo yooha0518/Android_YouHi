@@ -9,6 +9,7 @@
         android:padding="10dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/IV_profile"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

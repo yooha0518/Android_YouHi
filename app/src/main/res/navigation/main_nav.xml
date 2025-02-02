@@ -11,8 +11,8 @@
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_bookmarkFragment"
-            app:destination="@id/bookmarkFragment" />
+            android:id="@+id/action_homeFragment_to_likeFragment"
+            app:destination="@id/likeFragment" />
         <action
             android:id="@+id/action_homeFragment_to_talkFragment"
             app:destination="@id/talkFragment" />
@@ -24,21 +24,21 @@
             app:destination="@id/calenderFragment" />
     </fragment>
     <fragment
-        android:id="@+id/bookmarkFragment"
-        android:name="com.yoohayoung.youhi.fragments.BookmarkFragment"
-        android:label="fragment_bookmark"
-        tools:layout="@layout/fragment_bookmark" >
+        android:id="@+id/likeFragment"
+        android:name="com.yoohayoung.youhi.fragments.LikeFragment"
+        android:label="fragment_like"
+        tools:layout="@layout/fragment_like" >
         <action
-            android:id="@+id/action_bookmarkFragment_to_homeFragment"
+            android:id="@+id/action_likeFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
         <action
-            android:id="@+id/action_bookmarkFragment_to_talkFragment"
+            android:id="@+id/action_likeFragment_to_talkFragment"
             app:destination="@id/talkFragment" />
         <action
-            android:id="@+id/action_bookmarkFragment_to_calenderFragment"
+            android:id="@+id/action_likeFragment_to_calenderFragment"
             app:destination="@id/calenderFragment" />
         <action
-            android:id="@+id/action_bookmarkFragment_to_friendFragment"
+            android:id="@+id/action_likeFragment_to_friendFragment"
             app:destination="@id/friendFragment" />
     </fragment>
     <fragment
@@ -50,8 +50,8 @@
             android:id="@+id/action_calenderFragment_to_friendFragment"
             app:destination="@id/friendFragment" />
         <action
-            android:id="@+id/action_calenderFragment_to_bookmarkFragment"
-            app:destination="@id/bookmarkFragment" />
+            android:id="@+id/action_calenderFragment_to_likeFragment"
+            app:destination="@id/likeFragment" />
         <action
             android:id="@+id/action_calenderFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -68,8 +68,8 @@
             android:id="@+id/action_talkFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
         <action
-            android:id="@+id/action_talkFragment_to_bookmarkFragment"
-            app:destination="@id/bookmarkFragment" />
+            android:id="@+id/action_talkFragment_to_likeFragment"
+            app:destination="@id/likeFragment" />
         <action
             android:id="@+id/action_talkFragment_to_friendFragment"
             app:destination="@id/friendFragment" />
@@ -83,8 +83,8 @@
         android:label="fragment_tip"
         tools:layout="@layout/fragment_friend" >
         <action
-            android:id="@+id/action_friendFragment_to_bookmarkFragment"
-            app:destination="@id/bookmarkFragment" />
+            android:id="@+id/action_friendFragment_to_likeFragment"
+            app:destination="@id/likeFragment" />
         <action
             android:id="@+id/action_friendFragment_to_homeFragment"
             app:destination="@id/homeFragment" />

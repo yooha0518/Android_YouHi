@@ -28,25 +28,25 @@ class TalkFragment : Fragment() {
 
         binding.IVCategory1.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
-            intent.putExtra("category", "category1")
+            intent.putExtra("category", "board1")
             startActivity(intent)
         }
 
         binding.IVCategory2.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
-            intent.putExtra("category", "category2")
+            intent.putExtra("category", "board2")
             startActivity(intent)
         }
 
         binding.IVCategory3.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
-            intent.putExtra("category", "category3")
+            intent.putExtra("category", "board3")
             startActivity(intent)
         }
 
         binding.IVCategory4.setOnClickListener {
             val intent = Intent(context, BoardListActivity::class.java)
-            intent.putExtra("category", "category4")
+            intent.putExtra("category", "board4")
             startActivity(intent)
         }
 
@@ -56,7 +56,7 @@ class TalkFragment : Fragment() {
         }
         binding.IVMenubarLike.setOnClickListener{
             Log.d("HomeFragment","click")
-            it.findNavController().navigate(R.id.action_talkFragment_to_bookmarkFragment)
+            it.findNavController().navigate(R.id.action_talkFragment_to_likeFragment)
         }
         binding.IVMenubarHome.setOnClickListener{
             Log.d("HomeFragment","click")

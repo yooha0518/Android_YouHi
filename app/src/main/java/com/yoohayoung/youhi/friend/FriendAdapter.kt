@@ -8,7 +8,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yoohayoung.youhi.R
+import de.hdodenhof.circleimageview.CircleImageView
 
 class FriendAdapter(private val friendsList: List<Friend>,
     private val friendActionListener:FriendActionListener
@@ -24,6 +27,7 @@ class FriendAdapter(private val friendsList: List<Friend>,
         val TV_nickName: TextView = itemView.findViewById(R.id.TV_nickName)
         val BTN_friend_res: Button = itemView.findViewById(R.id.BTN_friend_res)
         val TV_name: TextView = itemView.findViewById(R.id.TV_name)
+        val IV_profile: CircleImageView = itemView.findViewById(R.id.IV_profile)
 
     }
 
@@ -38,6 +42,14 @@ class FriendAdapter(private val friendsList: List<Friend>,
 
         holder.TV_nickName.text = friend.nickName
         holder.TV_name.text = friend.name
+
+        // 프로필 이미지를 Glide를 사용하여 로드
+        Glide.with(holder.IV_profile.context)
+            .load("http://youhi.tplinkdns.com:4000/${friend.uid}.jpg")
+            .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
+            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .into(holder.IV_profile)
 
         Log.d("reqfriendBind","${friend.nickName}")
 

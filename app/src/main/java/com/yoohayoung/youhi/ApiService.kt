@@ -14,20 +14,20 @@ interface ApiService {
         @Body request: messageData,
     ): ApiResponse
 
-    @POST("/saveUserToken") //메시지 전송 API 호출
+    @POST("/saveUserToken") //유저의 토큰을 서버에 저장(알림 전송에 필요)
     suspend fun saveUserToken(
         @Body request: userData,
     ): ApiResponse
 
     @Multipart
-    @POST("/postProfileImage")
+    @POST("/postProfileImage") //프로필 이미지 등록
     suspend fun uploadProfileImage(
         @Part("nickname") nickname: RequestBody,
         @Part image: MultipartBody.Part,
     ): uploadImageResponseModel
 
     @Multipart
-    @POST("/postBoardImage")
+    @POST("/postBoardImage") //게시글 이미지 등록
     suspend fun uploadBoardImage(
         @Part("boardID") boardID: RequestBody,
         @Part image: MultipartBody.Part

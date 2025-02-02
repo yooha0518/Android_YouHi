@@ -102,8 +102,8 @@ class FriendSearchActivity : AppCompatActivity(), UserAdapter.UserActionListener
         val database = FirebaseDatabase.getInstance().reference
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        database.child("user").orderByChild("nickName").startAt(keyword).endAt(keyword + "\uf8ff")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+        database.child("user")
+            .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     userList.clear()
                     for (snapshot in dataSnapshot.children) {
@@ -113,11 +113,14 @@ class FriendSearchActivity : AppCompatActivity(), UserAdapter.UserActionListener
                         val name = snapshot.child("name").value.toString()
 
 
-                        val isFriend = snapshot.child("friends").child(uid).exists()
-                        val isPendingRequest = snapshot.child("friendRequests").child(currentUserUid).child(uid).exists()
-                        val isRequestSent = snapshot.child("friendRequests").child(uid).child(currentUserUid).exists()
+                        // nickName에 keyword가 포함된 경우만 리스트에 추가
+                        if (nickName.contains(keyword, ignoreCase = true)) {
+                            val isFriend = snapshot.child("friends").child(uid).exists()
+                            val isPendingRequest = snapshot.child("friendRequests").child(currentUserUid).child(uid).exists()
+                            val isRequestSent = snapshot.child("friendRequests").child(uid).child(currentUserUid).exists()
 
-                        userList.add(Friend(uid, nickName, email, name, isFriend, isPendingRequest, isRequestSent))
+                            userList.add(Friend(uid, nickName, email, name, isFriend, isPendingRequest, isRequestSent))
+                        }
                     }
                     userAdapter.notifyDataSetChanged()
                 }

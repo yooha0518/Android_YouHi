@@ -28,7 +28,6 @@ import com.bumptech.glide.request.RequestListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.yoohayoung.youhi.ApiService
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.comment.CommentModel
 import com.yoohayoung.youhi.comment.CommentRVAdapter
@@ -37,35 +36,26 @@ import com.yoohayoung.youhi.messageData
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef
-import com.yoohayoung.youhi.utils.ResponseInterceptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
-import java.security.KeyManagementException
-import java.util.concurrent.TimeUnit
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.request.target.Target
+import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import java.io.FileOutputStream
 
 class BoardInsideActivity : AppCompatActivity() {
-
     private val TAG = BoardInsideActivity::class.java.simpleName
-
     private lateinit var binding :ActivityBoardInsideBinding
-
-    private lateinit var apiService: ApiService
-
     private lateinit var boardId:String
     private lateinit var category :String
+    private var islike: Boolean = false
 
     private val commentDataList = mutableListOf<CommentModel>()
 
@@ -81,30 +71,16 @@ class BoardInsideActivity : AppCompatActivity() {
             showEditDialog()
         }
 
-        try {
-            // Retrofit 객체 초기화
-            val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://youhi.tplinkdns.com:4000")
-                .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
-                .addConverterFactory(GsonConverterFactory.create())// json 변환기 추가
-                .build()
-
-            // ApiService 인터페이스 구현체 생성
-            apiService = retrofit.create(ApiService::class.java)
-
-        } catch (e: KeyManagementException) {
-            e.printStackTrace()
-        }
-
         boardId = intent.getStringExtra("boardId").toString()
         category = intent.getStringExtra("category").toString()
 
-//        Log.d("게시물의 boardId", "$boardId")
-//        Log.d("게시물의 category", "$category")
+        Log.d("boardId", "$boardId")
+        Log.d("category", "$category")
 
         getBoardData(boardId)
         getImageData(boardId)
-//        addIdToExistingComments(boardId)
+        getLikeListData(boardId)
+//        addIdToExistingComments(boardId) //ID가 없는 댓글에 ID 추가 (이전 버전 호환 고려)
 
         binding.commentBtn.setOnClickListener {
             insertComment(boardId)
@@ -119,8 +95,37 @@ class BoardInsideActivity : AppCompatActivity() {
             showImageDialog(boardId)
         }
 
+        binding.IVLike.setOnClickListener {
+            if(islike == true){
+                //좋아요 해제
+                binding.IVLike.setImageResource(R.drawable.icon_unlike)
+                val ref = FBRef.likeRef.child(getUid()).child(boardId)
+                ref.removeValue()
+                    .addOnSuccessListener {
+                        Log.d("좋아요 해제","성공")
+                        islike = false
+                    }
+                    .addOnFailureListener {
+                        Log.d("좋아요 해제", "실패")
+                    }
+
+            }else{
+                //좋아요 설정
+                binding.IVLike.setImageResource(R.drawable.icon_like)
+                val ref = FBRef.likeRef.child(getUid()).child(boardId)
+                ref.setValue(category)
+                    .addOnSuccessListener { 
+                        Log.d("좋아요 설정","성공")
+                        islike = true
+                    }
+                    .addOnFailureListener { 
+                        Log.d("좋아요 설정", "실패")
+                    }
+
+            }
+        }
+
         // 댓글 아이템 클릭 시 수정 다이얼로그 띄우기
-        // 클릭 리스너 설정
         commentAdapter.setOnItemClickListener(object : CommentRVAdapter.OnItemClickListener {
             override fun onEditClick(position: Int) {
                 showEditCommentDialog(position)
@@ -280,13 +285,26 @@ class BoardInsideActivity : AppCompatActivity() {
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         val nickName = dataSnapshot.getValue(String::class.java)
-                        if (nickName != null) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                Log.d("sendMsgApiRequiest","nickName: $nickName, 댓글: $commentText")
-                                sendMsgApiRequest(nickName, commentText)
+
+                        // 게시글의 작성자 UID 가져오기
+                        val postRef = FBRef.database.getReference("$category/$boardId/uid")
+
+                        Log.d("postRef", "$postRef")
+
+                        postRef.get().addOnSuccessListener { postSnapshot ->
+                            val postUid = postSnapshot.getValue(String::class.java)
+
+                            if (nickName != null && postUid != null) {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    Log.d("sendMsgApiRequest", "nickName: $nickName, 댓글: $commentText, postUid: $postUid")
+
+                                    sendMsgApiRequest(nickName, commentText, postUid)
+                                }
+                            } else {
+                                Log.e("sendMsgApiRequest", "닉네임 또는 게시글 작성자 UID를 찾을 수 없습니다.")
                             }
-                        } else {
-                            Log.e("sendMsgApiRequest", "닉네임을 찾을 수 없습니다.")
+                        }.addOnFailureListener { exception ->
+                            Log.e("sendMsgApiRequest", "게시글 작성자 UID를 가져오는 데 실패했습니다.", exception)
                         }
                     }
 
@@ -294,6 +312,7 @@ class BoardInsideActivity : AppCompatActivity() {
                         Log.e("sendMsgApiRequest", "닉네임을 가져오는 데 실패했습니다.", databaseError.toException())
                     }
                 })
+
         } else {
             Toast.makeText(this, "댓글 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
         }
@@ -364,15 +383,38 @@ class BoardInsideActivity : AppCompatActivity() {
 
         // 카테고리에 따라 적절한 레퍼런스를 선택합니다.
         when (category) {
-            "category1" -> FBRef.boardRef1.child(boardId).addListenerForSingleValueEvent(postListener)
-            "category2" -> FBRef.boardRef2.child(boardId).addListenerForSingleValueEvent(postListener)
-            "category3" -> FBRef.boardRef3.child(boardId).addListenerForSingleValueEvent(postListener)
-            "category4" -> FBRef.boardRef4.child(boardId).addListenerForSingleValueEvent(postListener)
+            "board1" -> FBRef.boardRef1.child(boardId).addValueEventListener(postListener)
+            "board2" -> FBRef.boardRef2.child(boardId).addValueEventListener(postListener)
+            "board3" -> FBRef.boardRef3.child(boardId).addValueEventListener(postListener)
+            "board4" -> FBRef.boardRef4.child(boardId).addValueEventListener(postListener)
             else -> Log.e("BoardInsideActivity", "Invalid category!")
         }
-
-
     }
+
+    private fun getLikeListData(boardId: String) {
+        val uid = getUid()
+        val ref = FBRef.database.getReference("like_list/$uid/$boardId")
+
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // boardId가 key이므로 존재 여부만 확인
+                    binding.IVLike.setImageResource(R.drawable.icon_like)
+                    islike = true
+                    Log.d("getLikeListData", "Like exists: $boardId")
+                } else {
+                    binding.IVLike.setImageResource(R.drawable.icon_unlike)
+                    islike = false
+                    Log.d("getLikeListData", "No like found for boardId: $boardId")
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Database error: ${error.message}")
+            }
+        })
+    }
+
 
     private fun loadProfileImage(uid: String) {
         Glide.with(this)
@@ -400,17 +442,30 @@ class BoardInsideActivity : AppCompatActivity() {
             startActivity(intent)
         }
         alertDialog.findViewById<Button>(R.id.removeBtn)?.setOnClickListener{
-            if(category.equals("category1")){
+            if(category.equals("board1")){
                 FBRef.boardRef1.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("category2")){
+            }else if(category.equals("board2")){
                 FBRef.boardRef2.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("category3")){
+            }else if(category.equals("board3")){
                 FBRef.boardRef3.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("category4")){
+            }else if(category.equals("board4")){
                 FBRef.boardRef4.child(boardId).removeValue() //게시글 삭제
             }else{
                 Log.e("error", "category가 없습니다")
             }
+
+            //like_list 삭제
+            val ref = FBRef.likeRef.child(getUid()).child(boardId)
+            ref.removeValue()
+                .addOnSuccessListener {
+                    Log.d("좋아요 해제","성공")
+                    islike = false
+                }
+                .addOnFailureListener {
+                    Log.d("좋아요 해제", "실패")
+                }
+
+
 
             // TODO: 이미지 삭제
 
@@ -524,27 +579,16 @@ class BoardInsideActivity : AppCompatActivity() {
         }
     }
 
-    suspend fun sendMsgApiRequest(nickName: String, message: String) {
+    suspend fun sendMsgApiRequest(nickName: String, message: String, postUid: String) {
         val title = "$nickName 님이 댓글을 작성했습니다."
-        val request = messageData(name = getUid(), message = message, title = title)
+        val request = messageData(name = getUid(), message = message, title = title, type = "comment", auther = postUid )
         try {
-            Log.d("sendMsgApiRequest", "nickName: $nickName, message: $message")
+            Log.d("sendMsgApiRequest", "nickName: $nickName, message: $message, auther: $postUid")
             val apiResponse = apiService.sendMsg(request)
             Log.d("apiResponse", apiResponse.toString())
         } catch (e: Exception) {
             Log.e("apiResponse", "Error", e)
         }
-    }
-
-    private fun createOkHttpClient(): OkHttpClient {
-        val interceptor = ResponseInterceptor()
-
-        return OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
-            .build()
     }
 
 }

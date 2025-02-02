@@ -1,5 +1,6 @@
 package com.yoohayoung.youhi
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -9,15 +10,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
+import com.yoohayoung.youhi.auth.IntroActivity
 import com.yoohayoung.youhi.auth.UserModel
 import com.yoohayoung.youhi.databinding.ActivityMyPageBinding
+import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef
 import com.yoohayoung.youhi.utils.ResponseInterceptor
+import com.yoohayoung.youhi.utils.RetrofitClient
+import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,9 +60,8 @@ data class FileInfo(
 
 
 class MyPageActivity : AppCompatActivity() {
-
+    private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityMyPageBinding
-    private lateinit var apiService: ApiService
 
     // 이미지 선택 결과를 처리하는 ActivityResultLauncher 선언
     private val selectImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -64,6 +71,7 @@ class MyPageActivity : AppCompatActivity() {
                 .load(it)
                 .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
                 .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+                .error(R.drawable.default_profile) // 에러 시 표시할 이미지
                 .into(binding.IVProfile)
 
             // Glide를 사용해 Bitmap으로 로드 후 서버 업로드
@@ -94,26 +102,23 @@ class MyPageActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_my_page)
 
+        auth = Firebase.auth
+
         val uid = getUid()
         loadUserData(uid)
 
-        try {
-            // Retrofit 객체 초기화
-            val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://youhi.tplinkdns.com:4000")
-                .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
-                .addConverterFactory(GsonConverterFactory.create())// json 변환기 추가
-                .build()
-
-            // ApiService 인터페이스 구현체 생성
-            apiService = retrofit.create(ApiService::class.java)
-
-        } catch (e: KeyManagementException) {
-            e.printStackTrace()
-        }
-
         binding.BTNProfile.setOnClickListener {
             selectImageLauncher.launch("image/*") // 이미지 타입만 선택하도록 필터링
+        }
+
+        binding.BTNLogout.setOnClickListener {
+            auth.signOut()
+
+            val intent = Intent(this, IntroActivity::class.java)
+
+            //로그아웃한뒤에 뒤로가기 눌렀을때 앱이 종료되도록 설정
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
 
     }

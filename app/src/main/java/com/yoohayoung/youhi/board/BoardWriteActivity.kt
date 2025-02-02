@@ -13,34 +13,34 @@ import androidx.databinding.DataBindingUtil
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import com.yoohayoung.youhi.ApiService
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.databinding.ActivityBoardWriteBinding
 import com.yoohayoung.youhi.messageData
 import com.yoohayoung.youhi.utils.FBAuth
+import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef
-import com.yoohayoung.youhi.utils.ResponseInterceptor
+import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
-import java.security.KeyManagementException
-import java.util.concurrent.TimeUnit
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
+data class News(
+    val uid: String ="",
+    val content: String = ""
+)
 class BoardWriteActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBoardWriteBinding
-    private lateinit var apiService: ApiService
     private var imageSelected: Boolean = false
     private lateinit var category: String
 
@@ -58,20 +58,6 @@ class BoardWriteActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_board_write)
         category = intent.getStringExtra("category").toString()
 
-        try {
-            // Retrofit 객체 초기화
-            val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://youhi.tplinkdns.com:4000")
-                .client(createOkHttpClient()) // Interceptor를 사용하는 클라이언트 지정
-                .addConverterFactory(GsonConverterFactory.create()) // JSON 변환기 추가
-                .build()
-
-            // ApiService 인터페이스 구현체 생성
-            apiService = retrofit.create(ApiService::class.java)
-        } catch (e: KeyManagementException) {
-            e.printStackTrace()
-        }
-
         binding.BTNWriteBoard.setOnClickListener {
             val title = binding.titleArea.text.toString()
             val content = binding.contentArea.text.toString()
@@ -79,22 +65,22 @@ class BoardWriteActivity : AppCompatActivity() {
             val time = FBAuth.getTime()
 
             val key = when (category) {
-                "category1" -> {
+                "board1" -> {
                     val newKey = FBRef.boardRef1.push().key.toString()
                     FBRef.boardRef1.child(newKey).setValue(Board(title, content, uid, time, newKey))
                     newKey
                 }
-                "category2" -> {
+                "board2" -> {
                     val newKey = FBRef.boardRef2.push().key.toString()
                     FBRef.boardRef2.child(newKey).setValue(Board(title, content, uid, time, newKey))
                     newKey
                 }
-                "category3" -> {
+                "board3" -> {
                     val newKey = FBRef.boardRef3.push().key.toString()
                     FBRef.boardRef3.child(newKey).setValue(Board(title, content, uid, time, newKey))
                     newKey
                 }
-                "category4" -> {
+                "board4" -> {
                     val newKey = FBRef.boardRef4.push().key.toString()
                     FBRef.boardRef4.child(newKey).setValue(Board(title, content, uid, time, newKey))
                     newKey
@@ -118,11 +104,16 @@ class BoardWriteActivity : AppCompatActivity() {
             FBRef.userRef.child(uid).child("nickName")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        val nickName = dataSnapshot.getValue(String::class.java)
+                        val nickName = dataSnapshot.getValue(String::class.java)?:"알 수 없음"
                         if (nickName != null) {
                             CoroutineScope(Dispatchers.Main).launch {
                                 sendMsgApiRequest(nickName, title)
                             }
+
+                            val newsRef = FBRef.newsRef.child(getCurrentDate()).push() // push를 사용하여 새로운 키 생성
+                            val news = News(getUid(), "${nickName}님이 게시글을 작성했습니다.")
+                            newsRef.setValue(news)
+
                         } else {
                             Log.e("sendMsgApiRequest", "닉네임을 찾을 수 없습니다.")
                         }
@@ -143,20 +134,14 @@ class BoardWriteActivity : AppCompatActivity() {
         }
     }
 
-    private fun createOkHttpClient(): OkHttpClient {
-        val interceptor = ResponseInterceptor()
-
-        return OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
-            .build()
+    fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(Date())
     }
 
-    suspend fun sendMsgApiRequest(nickName: String, message: String) {
-        val title = "$nickName 님이 게시물을 작성했습니다."
-        val request = messageData(name = FBAuth.getUid(), message = message, title = title)
+    suspend fun sendMsgApiRequest(nickName: String, message: String) { //nickName과 친구인 유저들에게 알림 발송(서버에서 친구 필터링)
+        val title = "$nickName 님이 게시글을 작성했습니다."
+        val request = messageData(name = FBAuth.getUid(), message = message, title = title, type = "board", auther = nickName)
         try {
             Log.d("sendMsgApiRequest", "nickName: $nickName, message: $message")
             val apiResponse = apiService.sendMsg(request)

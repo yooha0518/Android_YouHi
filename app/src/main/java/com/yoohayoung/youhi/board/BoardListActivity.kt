@@ -15,10 +15,10 @@ import com.yoohayoung.youhi.databinding.ActivityBoardListBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 
-class BoardListActivity : AppCompatActivity(),BoardListLVAdapter.BoardActionListener {
+class BoardListActivity : AppCompatActivity(),BoardListRVAdapter.BoardActionListener {
     private lateinit var binding: ActivityBoardListBinding
     private val boardDataList = mutableListOf<Board>()
-    private lateinit var boardRVAdapter : BoardListLVAdapter
+    private lateinit var boardRVAdapter : BoardListRVAdapter
     private lateinit var category :String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +28,7 @@ class BoardListActivity : AppCompatActivity(),BoardListLVAdapter.BoardActionList
         // 데이터 바인딩 초기화
         binding = DataBindingUtil.setContentView(this, R.layout.activity_board_list)
 
-        boardRVAdapter = BoardListLVAdapter(boardDataList,this)
+        boardRVAdapter = BoardListRVAdapter(boardDataList,this)
         binding.RVBoard.adapter = boardRVAdapter
         binding.RVBoard.layoutManager = LinearLayoutManager(this)
 
@@ -105,10 +105,10 @@ class BoardListActivity : AppCompatActivity(),BoardListLVAdapter.BoardActionList
 
         // 카테고리에 따라 적절한 게시판을 선택
         when (category) {
-            "category1" -> FBRef.boardRef1.addValueEventListener(postListener)
-            "category2" -> FBRef.boardRef2.addValueEventListener(postListener)
-            "category3" -> FBRef.boardRef3.addValueEventListener(postListener)
-            "category4" -> FBRef.boardRef4.addValueEventListener(postListener)
+            "board1" -> FBRef.boardRef1.addValueEventListener(postListener)
+            "board2" -> FBRef.boardRef2.addValueEventListener(postListener)
+            "board3" -> FBRef.boardRef3.addValueEventListener(postListener)
+            "board4" -> FBRef.boardRef4.addValueEventListener(postListener)
             else -> Log.e("error", "!!!! category가 없습니다")
         }
     }

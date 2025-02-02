@@ -17,13 +17,5 @@
         android:textSize="15sp"
         android:textStyle="bold"
         android:gravity="center"/>
-    <ImageView
-        android:id="@+id/bookmarkArea"
-        android:src="@drawable/bookmark_white"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"/>
-
 
 </LinearLayout>

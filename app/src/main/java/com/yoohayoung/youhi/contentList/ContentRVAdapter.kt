@@ -45,37 +45,37 @@ class ContentRVAdapter(val context: Context, val items: ArrayList<ContentModel>,
         fun bindItems(item:ContentModel, key:String){
             val contentTitle = itemView.findViewById<TextView>(R.id.textArea)
             val imageViewArea = itemView.findViewById<ImageView>(R.id.imageArea)
-            val bookmarkArea = itemView.findViewById<ImageView>(R.id.bookmarkArea)
+//            val bookmarkArea = itemView.findViewById<ImageView>(R.id.bookmarkArea)
 
-            if(bookmarkIdList.contains(key)){
-                bookmarkArea.setImageResource(R.drawable.bookmark_color)
-            }else{
-                bookmarkArea.setImageResource(R.drawable.bookmark_white)
-            }
+//            if(bookmarkIdList.contains(key)){
+//                bookmarkArea.setImageResource(R.drawable.bookmark_color)
+//            }else{
+//                bookmarkArea.setImageResource(R.drawable.bookmark_white)
+//            }
 
-            bookmarkArea.setOnClickListener{
-                //북마크 클릭 이벤트
-
-                if(bookmarkIdList.contains(key)){
-                    //북마크가 있을 때
-                    FBRef.bookmarkRef
-                        .child(FBAuth.getUid())
-                        .child(key)
-                        .removeValue()
-
-                    Log.d("bookmark","북마크가 있음")
-
-                }else{
-                    Log.d("bookmark","북마크가 없음")
-                    //북마크가 없을 때
-
-                    FBRef.bookmarkRef
-                        .child(FBAuth.getUid())
-                        .child(key)
-                        .setValue(BookmarkModel(true))
-                }
-
-            }
+//            bookmarkArea.setOnClickListener{
+//                //북마크 클릭 이벤트
+//
+//                if(bookmarkIdList.contains(key)){
+//                    //북마크가 있을 때
+//                    FBRef.bookmarkRef
+//                        .child(FBAuth.getUid())
+//                        .child(key)
+//                        .removeValue()
+//
+//                    Log.d("bookmark","북마크가 있음")
+//
+//                }else{
+//                    Log.d("bookmark","북마크가 없음")
+//                    //북마크가 없을 때
+//
+//                    FBRef.bookmarkRef
+//                        .child(FBAuth.getUid())
+//                        .child(key)
+//                        .setValue(BookmarkModel(true))
+//                }
+//
+//            }
 
             contentTitle.text = item.title
             Glide.with(context)

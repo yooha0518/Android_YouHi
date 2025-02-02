@@ -26,6 +26,7 @@ import com.yoohayoung.youhi.auth.IntroActivity
 import com.yoohayoung.youhi.contentList.ContentListActivity
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.ResponseInterceptor
+import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -42,19 +43,13 @@ import java.security.KeyManagementException
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var auth: FirebaseAuth
-
-    private lateinit var apiService: ApiService
-
-    // CoroutineScope를 선언합니다. 적절한 범위에서 CoroutineScope를 생성하세요.
-    val scope = CoroutineScope(Dispatchers.IO)
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { isGranted: Boolean ->
         if (isGranted) {
-            Toast.makeText(this, "알림기능이 허용되었습니다.", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "알림 권한이 허용되었습니다.", Toast.LENGTH_SHORT)
                 .show()
         } else {
             Toast.makeText(
@@ -84,27 +79,6 @@ class MainActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 //            startActivity(intent)
 //        }
-
-
-        findViewById<ImageView>(R.id.main_option).setOnClickListener {
-            showDialog()
-        }
-
-        try {
-            // Retrofit 객체 초기화
-            val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://youhi.tplinkdns.com:4000")
-                .client(createOkHttpClient()) //<- Interceptor 를 사용하는 클라이언트 지정
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-            // ApiService 인터페이스 구현체 생성
-            apiService = retrofit.create(ApiService::class.java)
-
-        }catch (e: KeyManagementException) {
-            e.printStackTrace()
-        }
-
 
 
         askNotificationPermission()
@@ -149,16 +123,6 @@ class MainActivity : AppCompatActivity() {
 //        backPressHandler.onBackPressed()
     }
 
-    private fun createOkHttpClient(): OkHttpClient {
-        val interceptor = ResponseInterceptor()
-
-        return OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
-            .build()
-    }
     private fun askNotificationPermission() {
         // This is only necessary for API Level > 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -172,51 +136,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    // 액티비티의 생명주기에 맞게 CoroutineScope를 취소해야 합니다.
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel() // CoroutineScope를 취소합니다.
-    }
-
-    private fun showDialog(){
-        val mDialogView = LayoutInflater.from(this).inflate(R.layout.main_dialog, null)
-        val mBuilder = AlertDialog.Builder(this)
-            .setView(mDialogView)
-
-
-        val alertDialog = mBuilder.show()
-        alertDialog.findViewById<Button>(R.id.mypage_btn)?.setOnClickListener{
-            val intent = Intent(this, MyPageActivity::class.java)
-            alertDialog.dismiss()
-            startActivity(intent)
-        }
-
-        alertDialog.findViewById<Button>(R.id.BTN_profile)?.setOnClickListener{
-            val intent = Intent(this, ContentListActivity::class.java)
-            intent.putExtra("category", "category1")
-            alertDialog.dismiss()
-            startActivity(intent)
-        }
-        alertDialog.findViewById<Button>(R.id.BTN_blog)?.setOnClickListener{
-            val intent = Intent(this, ContentListActivity::class.java)
-            intent.putExtra("category", "category2")
-            alertDialog.dismiss()
-            startActivity(intent)
-        }
-
-        alertDialog.findViewById<Button>(R.id.logout_btn)?.setOnClickListener{
-            auth.signOut()
-
-            val intent = Intent(this, IntroActivity::class.java)
-
-            //로그아웃한뒤에 뒤로가기 눌렀을때 앱이 종료되도록 설정
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            alertDialog.dismiss()
-            startActivity(intent)
-        }
-    }
-
-
 
 }

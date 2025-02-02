@@ -17,13 +17,12 @@ class FBRef {
         val boardRef2 = database.getReference("board2")
         val boardRef3 = database.getReference("board3")
         val boardRef4 = database.getReference("board4")
-        val boardRef5 = database.getReference("board5")
-        val boardRef6 = database.getReference("board6")
-        val boardRef7 = database.getReference("board7")
 
         val userRef = database.getReference("user")
         val commentRef = database.getReference("comment")
         val eventsRef = database.getReference("events")
+        val likeRef = database.getReference("like_list")
+        val newsRef = database.getReference("news")
 
     }
 }

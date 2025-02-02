@@ -12,18 +12,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import com.yoohayoung.youhi.ApiService
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.databinding.ActivityBoardEditBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 import com.yoohayoung.youhi.utils.ResponseInterceptor
+import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,19 +30,11 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
-import java.security.KeyManagementException
 import java.util.concurrent.TimeUnit
 
 class BoardEditActivity : AppCompatActivity() {
-
-    private val TAG = BoardEditActivity::class.java.simpleName
-    private lateinit var apiService: ApiService
-
     private lateinit var binding : ActivityBoardEditBinding
-
     private lateinit var boardId:String
     private lateinit var writerUid : String
     private lateinit var category :String
@@ -74,20 +63,6 @@ class BoardEditActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_board_edit)
 
-        try {
-            // Retrofit 객체 초기화
-            val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl("http://youhi.tplinkdns.com:4000")
-                .client(createOkHttpClient()) // Interceptor를 사용하는 클라이언트 지정
-                .addConverterFactory(GsonConverterFactory.create()) // JSON 변환기 추가
-                .build()
-
-            // ApiService 인터페이스 구현체 생성
-            apiService = retrofit.create(ApiService::class.java)
-        } catch (e: KeyManagementException) {
-            e.printStackTrace()
-        }
-
         boardId = intent.getStringExtra("boardId").toString()
         category = intent.getStringExtra("category").toString()
 
@@ -107,7 +82,7 @@ class BoardEditActivity : AppCompatActivity() {
 
     private fun editBoardData(boardId : String){
 
-        if(category.equals("category1")){
+        if(category.equals("board1")){
             FBRef.boardRef1
                 .child(boardId)
                 .setValue(
@@ -117,7 +92,7 @@ class BoardEditActivity : AppCompatActivity() {
                         FBAuth.getTime(),
                         boardId)
                 )
-        }else if(category.equals("category2")){
+        }else if(category.equals("board2")){
             FBRef.boardRef2
                 .child(boardId)
                 .setValue(
@@ -127,7 +102,7 @@ class BoardEditActivity : AppCompatActivity() {
                         FBAuth.getTime(),
                         boardId)
                 )
-        }else if(category.equals("category3")){
+        }else if(category.equals("board3")){
             FBRef.boardRef3
                 .child(boardId)
                 .setValue(
@@ -137,7 +112,7 @@ class BoardEditActivity : AppCompatActivity() {
                         FBAuth.getTime(),
                         boardId)
                 )
-        }else if(category.equals("category4")){
+        }else if(category.equals("board4")){
             FBRef.boardRef4
                 .child(boardId)
                 .setValue(
@@ -184,22 +159,14 @@ class BoardEditActivity : AppCompatActivity() {
             }
         }
 
-
-
-        if(category.equals("category1")){
+        if(category.equals("board1")){
             FBRef.boardRef1.child(key).addValueEventListener(postListener)
-        }else if(category.equals("category2")){
+        }else if(category.equals("board2")){
             FBRef.boardRef2.child(key).addValueEventListener(postListener)
-        }else if(category.equals("category3")){
+        }else if(category.equals("board3")){
             FBRef.boardRef3.child(key).addValueEventListener(postListener)
-        }else if(category.equals("category4")){
+        }else if(category.equals("board4")){
             FBRef.boardRef4.child(key).addValueEventListener(postListener)
-        }else if(category.equals("category5")){
-            FBRef.boardRef5.child(key).addValueEventListener(postListener)
-        }else if(category.equals("category6")){
-            FBRef.boardRef6.child(key).addValueEventListener(postListener)
-        }else if(category.equals("category7")){
-            FBRef.boardRef7.child(key).addValueEventListener(postListener)
         }else{
             Log.e("getBoardData", "!!!! category가 없습니다")
         }

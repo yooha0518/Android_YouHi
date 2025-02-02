@@ -7,6 +7,8 @@ data class userData(
 data class messageData(
     val name:String,
     val message:String,
-    val title:String
+    val title:String,
+    val type: String,
+    val auther: String,
 )
 

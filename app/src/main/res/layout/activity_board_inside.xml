@@ -114,10 +114,11 @@
                             android:textColor="#333333"/>
 
                         <ImageView
+                            android:id="@+id/IV_like"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="match_parent"
-                            android:src="@drawable/icon_unlick"
+                            android:src="@drawable/icon_unlike"
                             />
                     </LinearLayout>
 

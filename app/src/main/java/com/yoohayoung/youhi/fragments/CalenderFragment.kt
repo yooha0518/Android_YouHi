@@ -91,7 +91,7 @@ class CalenderFragment : Fragment() {
         }
         binding.IVMenubarLike.setOnClickListener {
             Log.d("HomeFragment", "click")
-            it.findNavController().navigate(R.id.action_calenderFragment_to_bookmarkFragment)
+            it.findNavController().navigate(R.id.action_calenderFragment_to_likeFragment)
         }
         binding.IVMenubarBoard.setOnClickListener {
             Log.d("HomeFragment", "click")
