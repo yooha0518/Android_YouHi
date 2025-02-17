@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +24,8 @@ import com.yoohayoung.youhi.utils.FBRef
 
 class LikeFragment : Fragment(), LikeRVAdapter.BoardActionListener {
 
-    private lateinit var binding: FragmentLikeBinding
+    private var _binding: FragmentLikeBinding? = null
+    private val binding get() = _binding!!
     private var likeBoardDataList = mutableListOf<LikeData>()
     lateinit var rvAdapter: LikeRVAdapter
 
@@ -34,7 +34,8 @@ class LikeFragment : Fragment(), LikeRVAdapter.BoardActionListener {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_like,container,false)
+        _binding = FragmentLikeBinding.inflate(inflater,container,false)
+
 
         binding.IVMenubarFriend.setOnClickListener{
             it.findNavController().navigate(R.id.action_likeFragment_to_friendFragment)
@@ -113,4 +114,8 @@ class LikeFragment : Fragment(), LikeRVAdapter.BoardActionListener {
         })
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

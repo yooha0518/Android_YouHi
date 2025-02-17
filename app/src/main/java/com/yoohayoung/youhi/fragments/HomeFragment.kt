@@ -7,13 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -38,45 +35,38 @@ import java.util.Locale
 
 class HomeFragment : Fragment() {
 
-    private lateinit var binding:FragmentHomeBinding
+    private  var _binding:FragmentHomeBinding? = null
+    private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         auth = Firebase.auth
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        _binding = FragmentHomeBinding.inflate(inflater, container,false)
+        return binding.root
+    }
 
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home,container,false)
-
-        // 광고뷰 초기화 및 로드
-        val adView: AdView = binding.adView
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
-
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w("homeFragment", "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            val token = task.result
-
-            Log.d("homeFragment", token)
-        })
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupUI()
+        loadFCMToken()
         getNewsList()
+    }
+
+    private fun setupUI() {
+        // 광고뷰 초기화 및 로드
+        val adRequest = AdRequest.Builder().build()
+        binding.adView.loadAd(adRequest)
 
         binding.IVMypage.setOnClickListener {
-            val intent = Intent(context, MyPageActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(context, MyPageActivity::class.java))
         }
 
         binding.IVBlog.setOnClickListener {
@@ -85,44 +75,45 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
 
-        binding.BTNFindFriend.setOnClickListener{
-            val intent = Intent(context, FriendSearchActivity::class.java)
-            startActivity(intent)
+        binding.BTNFindFriend.setOnClickListener {
+            startActivity(Intent(context, FriendSearchActivity::class.java))
         }
 
-        binding.BTNDeveloperProfile.setOnClickListener{
+        binding.BTNDeveloperProfile.setOnClickListener {
             val intent = Intent(context, ContentListActivity::class.java)
             intent.putExtra("category", "category1")
             startActivity(intent)
         }
 
-        binding.BTNCalender.setOnClickListener{
+        binding.BTNCalender.setOnClickListener {
             val intent = Intent(context, CreateEventActivity::class.java)
-            val currentDate = LocalDate.now()
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            intent.putExtra("selectedDate", currentDate.format(formatter))
+            val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            intent.putExtra("selectedDate", currentDate)
             startActivity(intent)
         }
 
-        binding.IVMenubarFriend.setOnClickListener{
-            Log.d("HomeFragment","click")
+        binding.IVMenubarFriend.setOnClickListener {
             it.findNavController().navigate(R.id.action_homeFragment_to_friendFragment)
         }
-        binding.IVMenubarLike.setOnClickListener{
-            Log.d("HomeFragment","click")
+        binding.IVMenubarLike.setOnClickListener {
             it.findNavController().navigate(R.id.action_homeFragment_to_likeFragment)
         }
-        binding.IVMenubarBoard.setOnClickListener{
-            Log.d("HomeFragment","click")
+        binding.IVMenubarBoard.setOnClickListener {
             it.findNavController().navigate(R.id.action_homeFragment_to_talkFragment)
         }
-        binding.IVMenubarCalender.setOnClickListener{
-            Log.d("HomeFragment","click")
+        binding.IVMenubarCalender.setOnClickListener {
             it.findNavController().navigate(R.id.action_homeFragment_to_calenderFragment)
         }
+    }
 
-
-        return binding.root
+    private fun loadFCMToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("HomeFragment", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+            Log.d("HomeFragment", "FCM Token: ${task.result}")
+        }
     }
 
     fun getCurrentDate(): String {
@@ -146,6 +137,7 @@ class HomeFragment : Fragment() {
                 // 뉴스 데이터 가져오기
                 newsRef.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(newsSnapshot: DataSnapshot) {
+                        if (!isAdded || _binding == null) return  // UI 업데이트 전에 체크
                         val filteredNewsList = mutableListOf<News>()
 
                         for (newsItemSnapshot in newsSnapshot.children) {
@@ -165,27 +157,37 @@ class HomeFragment : Fragment() {
 
                             binding.CIVNews1
 
+
+                            filteredNewsList.getOrNull(0)?.let{
+
+                            }
                             // 프로필 이미지를 Glide를 사용하여 로드
-                            Glide.with(binding.CIVNews1)
-                                .load("http://youhi.tplinkdns.com:4000/${filteredNewsList.getOrNull(0)?.uid}.jpg")
-                                .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
-                                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-                                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
-                                .into(binding.CIVNews1)
+                            filteredNewsList.getOrNull(0)?.let {
+                                Glide.with(binding.CIVNews1)
+                                    .load("http://youhi.tplinkdns.com:4000/${it.uid}.jpg")
+                                    .error(R.drawable.default_profile)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true)
+                                    .into(binding.CIVNews1)
+                            }
 
-                            Glide.with(binding.CIVNews2)
-                                .load("http://youhi.tplinkdns.com:4000/${filteredNewsList.getOrNull(1)?.uid}.jpg")
-                                .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
-                                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-                                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
-                                .into(binding.CIVNews2)
+                            filteredNewsList.getOrNull(1)?.let {
+                                Glide.with(binding.CIVNews2)
+                                    .load("http://youhi.tplinkdns.com:4000/${it.uid}.jpg")
+                                    .error(R.drawable.default_profile)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true)
+                                    .into(binding.CIVNews2)
+                            }
 
-                            Glide.with(binding.CIVNews3)
-                                .load("http://youhi.tplinkdns.com:4000/${filteredNewsList.getOrNull(2)?.uid}.jpg")
-                                .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
-                                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-                                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
-                                .into(binding.CIVNews3)
+                            filteredNewsList.getOrNull(2)?.let {
+                                Glide.with(binding.CIVNews3)
+                                    .load("http://youhi.tplinkdns.com:4000/${it.uid}.jpg")
+                                    .error(R.drawable.default_profile)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true)
+                                    .into(binding.CIVNews3)
+                            }
                         }
                     }
 
@@ -199,6 +201,11 @@ class HomeFragment : Fragment() {
                 Log.e("getNewsList", "친구 목록을 가져오는 데 실패했습니다.", error.toException())
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

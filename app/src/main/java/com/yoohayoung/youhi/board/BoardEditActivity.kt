@@ -9,7 +9,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.database.DataSnapshot
@@ -59,9 +58,8 @@ class BoardEditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_board_edit)
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_board_edit)
+        binding = ActivityBoardEditBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         boardId = intent.getStringExtra("boardId").toString()
         category = intent.getStringExtra("category").toString()

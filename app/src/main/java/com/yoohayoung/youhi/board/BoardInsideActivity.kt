@@ -18,7 +18,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -52,7 +51,7 @@ import java.io.FileOutputStream
 
 class BoardInsideActivity : AppCompatActivity() {
     private val TAG = BoardInsideActivity::class.java.simpleName
-    private lateinit var binding :ActivityBoardInsideBinding
+    private lateinit var binding : ActivityBoardInsideBinding
     private lateinit var boardId:String
     private lateinit var category :String
     private var islike: Boolean = false
@@ -63,9 +62,8 @@ class BoardInsideActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_board_inside)
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_board_inside)
+        binding = ActivityBoardInsideBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         binding.BTNEditBoard.setOnClickListener {
             showEditDialog()
@@ -319,37 +317,39 @@ class BoardInsideActivity : AppCompatActivity() {
     }
 
     private fun getImageData(boardId: String) {
-        Glide.with(this)
-            .load("http://youhi.tplinkdns.com:4000/${boardId}.jpg")
-            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
-            .listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    // 이미지 로드 실패 시 IVBoard 높이를 0dp로 설정
-                    binding.IVBoard.layoutParams.height = 0
-                    binding.IVBoard.requestLayout()
-                    return false
-                }
+        // 액티비티가 종료되지 않았는지 확인
+        if (!isDestroyed) {
+            Glide.with(this)
+                .load("http://youhi.tplinkdns.com:4000/${boardId}.jpg")
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
+                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+                .listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        // 이미지 로드 실패 시 IVBoard 높이를 0dp로 설정
+                        binding.IVBoard.layoutParams.height = 0
+                        binding.IVBoard.requestLayout()
+                        return false
+                    }
 
-                override fun onResourceReady( //이미지 로드 성공시, 실행
-                    resource: Drawable,
-                    model: Any,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    return false
-                }
-
-
-            })
-            .into(binding.IVBoard)
+                    override fun onResourceReady( // 이미지 로드 성공 시
+                        resource: Drawable,
+                        model: Any,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        return false
+                    }
+                })
+                .into(binding.IVBoard)
+        }
     }
+
 
     private fun getBoardData(boardId: String) {
         val postListener = object : ValueEventListener {
@@ -590,5 +590,11 @@ class BoardInsideActivity : AppCompatActivity() {
             Log.e("apiResponse", "Error", e)
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
+
 
 }

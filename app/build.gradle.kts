@@ -50,7 +50,7 @@ android {
 
     buildFeatures{
         dataBinding = true //데이터 바인딩 사용하기
-        viewBinding = true
+        viewBinding = true //뷰 바인딩 사용하기
     }
 
 

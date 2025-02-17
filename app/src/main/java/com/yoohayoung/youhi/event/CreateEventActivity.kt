@@ -3,8 +3,6 @@ package com.yoohayoung.youhi.event
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.databinding.DataBindingUtil
-import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.databinding.ActivityCreateEventBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
@@ -15,8 +13,8 @@ class CreateEventActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_create_event)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_create_event)
+        binding = ActivityCreateEventBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
 
         selectedDate = intent.getStringExtra("selectedDate").toString()

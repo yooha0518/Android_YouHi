@@ -4,13 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.databinding.ActivityBoardListBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
@@ -23,10 +21,8 @@ class BoardListActivity : AppCompatActivity(),BoardListRVAdapter.BoardActionList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_board_list)
-
-        // 데이터 바인딩 초기화
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_board_list)
+        binding = ActivityBoardListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         boardRVAdapter = BoardListRVAdapter(boardDataList,this)
         binding.RVBoard.adapter = boardRVAdapter

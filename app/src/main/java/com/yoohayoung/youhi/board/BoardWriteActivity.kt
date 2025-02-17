@@ -9,14 +9,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.databinding.ActivityBoardWriteBinding
 import com.yoohayoung.youhi.messageData
 import com.yoohayoung.youhi.utils.FBAuth
+import com.yoohayoung.youhi.utils.FBAuth.Companion.getTime
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef
 import com.yoohayoung.youhi.utils.RetrofitClient.apiService
@@ -39,7 +38,6 @@ data class News(
     val content: String = ""
 )
 class BoardWriteActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityBoardWriteBinding
     private var imageSelected: Boolean = false
     private lateinit var category: String
@@ -55,14 +53,16 @@ class BoardWriteActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_board_write)
+        binding = ActivityBoardWriteBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         category = intent.getStringExtra("category").toString()
 
         binding.BTNWriteBoard.setOnClickListener {
             val title = binding.titleArea.text.toString()
             val content = binding.contentArea.text.toString()
-            val uid = FBAuth.getUid()
-            val time = FBAuth.getTime()
+            val uid = getUid()
+            val time = getTime()
 
             val key = when (category) {
                 "board1" -> {

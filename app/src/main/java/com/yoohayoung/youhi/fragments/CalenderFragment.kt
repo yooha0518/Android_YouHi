@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import com.yoohayoung.youhi.CalendarAdapter
 import com.yoohayoung.youhi.CalendarDay
@@ -30,7 +29,8 @@ import java.util.Date
 
 class CalenderFragment : Fragment() {
 
-    private lateinit var binding: FragmentCalenderBinding
+    private var _binding: FragmentCalenderBinding? = null
+    private val binding get() = _binding!!
     private lateinit var calendarAdapter: CalendarAdapter
     private lateinit var dayEventAdapter: DayEventAdapter
     val eventsList = mutableListOf<EventModel>()
@@ -44,11 +44,11 @@ class CalenderFragment : Fragment() {
     private val friendsSet = mutableSetOf<String>()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_calender, container, false)
+        _binding = FragmentCalenderBinding.inflate(inflater, container, false)
 
         val daysInMonth = getDaysInMonthArray()
         calendarAdapter = CalendarAdapter(daysInMonth, calendar) { day ->

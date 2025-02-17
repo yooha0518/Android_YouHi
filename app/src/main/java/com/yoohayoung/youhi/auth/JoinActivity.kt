@@ -5,27 +5,24 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.yoohayoung.youhi.MainActivity
-import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.databinding.ActivityJoinBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 
 class JoinActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
-
     private lateinit var binding : ActivityJoinBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_join)
+        binding = ActivityJoinBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_join)
 
         auth = Firebase.auth
 

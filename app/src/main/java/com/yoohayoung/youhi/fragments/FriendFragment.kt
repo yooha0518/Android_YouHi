@@ -8,8 +8,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -18,18 +16,16 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.yoohayoung.youhi.R
-import com.yoohayoung.youhi.auth.LoginActivity
 import com.yoohayoung.youhi.databinding.FragmentFriendBinding
 import com.yoohayoung.youhi.friend.Friend
 import com.yoohayoung.youhi.friend.FriendAdapter
 import com.yoohayoung.youhi.friend.FriendSearchActivity
-import com.yoohayoung.youhi.friend.UserAdapter
 import com.yoohayoung.youhi.utils.FBAuth
-import com.yoohayoung.youhi.utils.FBRef
 
 class FriendFragment : Fragment(),FriendAdapter.FriendActionListener {
 
-    private lateinit var binding: FragmentFriendBinding
+    private  var _binding: FragmentFriendBinding? = null
+    private val binding get() = _binding!!
     private lateinit var friendAdapter : FriendAdapter
     private lateinit var pendingFriendAdapter : FriendAdapter
     private var isShowingPendingRequests: Boolean = false
@@ -41,7 +37,7 @@ class FriendFragment : Fragment(),FriendAdapter.FriendActionListener {
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_friend,container,false)
+        _binding = FragmentFriendBinding.inflate(inflater, container,false)
 
         friendAdapter = FriendAdapter(friendsList,this)
         pendingFriendAdapter = FriendAdapter(pendingList,this)
@@ -233,6 +229,11 @@ class FriendFragment : Fragment(),FriendAdapter.FriendActionListener {
             binding.TVTitle.text="받은 요청 목록"
         }
         isShowingPendingRequests = !isShowingPendingRequests
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }
