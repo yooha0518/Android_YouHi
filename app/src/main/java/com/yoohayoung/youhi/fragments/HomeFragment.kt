@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.ads.AdRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -27,6 +26,7 @@ import com.yoohayoung.youhi.event.CreateEventActivity
 import com.yoohayoung.youhi.friend.FriendSearchActivity
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.profileOptions
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -165,27 +165,21 @@ class HomeFragment : Fragment() {
                             filteredNewsList.getOrNull(0)?.let {
                                 Glide.with(binding.CIVNews1)
                                     .load("http://youhi.tplinkdns.com:4000/${it.uid}.jpg")
-                                    .error(R.drawable.default_profile)
-                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                    .skipMemoryCache(true)
+                                    .apply(profileOptions)
                                     .into(binding.CIVNews1)
                             }
 
                             filteredNewsList.getOrNull(1)?.let {
                                 Glide.with(binding.CIVNews2)
                                     .load("http://youhi.tplinkdns.com:4000/${it.uid}.jpg")
-                                    .error(R.drawable.default_profile)
-                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                    .skipMemoryCache(true)
+                                    .apply(profileOptions)
                                     .into(binding.CIVNews2)
                             }
 
                             filteredNewsList.getOrNull(2)?.let {
                                 Glide.with(binding.CIVNews3)
                                     .load("http://youhi.tplinkdns.com:4000/${it.uid}.jpg")
-                                    .error(R.drawable.default_profile)
-                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                    .skipMemoryCache(true)
+                                    .apply(profileOptions)
                                     .into(binding.CIVNews3)
                             }
                         }

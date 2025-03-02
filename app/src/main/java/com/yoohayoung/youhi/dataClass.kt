@@ -1,5 +1,8 @@
 package com.yoohayoung.youhi
 
+import org.simpleframework.xml.Element
+import org.simpleframework.xml.Root
+
 data class userData(
     val name:String,
     val token:String
@@ -29,3 +32,49 @@ data class FileInfo(
     val size: Long               // 파일 크기 (바이트 단위)
 )
 
+@Root(name = "response", strict = false)
+data class ApiResponse(
+    @field:Element(name = "protocol", required = false)
+    var protocol: String = "",
+
+    @field:Element(name = "code", required = false)
+    var code: Int = 0,
+
+    @field:Element(name = "message", required = false)
+    var message: String = "",
+
+    @field:Element(name = "url", required = false)
+    var url: String = ""
+)
+
+
+data class ContentModel (
+    var title:String ="",
+    var imageUrl : String="",
+    var webUrl :String = ""
+)
+
+data class CommentModel (
+    val uid : String = "",
+    val comment : String = "",
+    val commentCreatedTime : String = "",
+    val id:String = ""
+)
+
+data class CalendarDay(val day: String, val events: MutableList<EventModel>) // 이벤트 배열로 변경
+
+data class EventModel (
+    val eventId: String="",
+    val date:String ="",
+    val title:String="",
+    val private:Boolean=false,
+    val uid:String="",
+)
+
+data class Board(
+    val title:String ="",
+    val content : String="",
+    val uid:String="",
+    val time:String="",
+    var boardId : String =""
+)

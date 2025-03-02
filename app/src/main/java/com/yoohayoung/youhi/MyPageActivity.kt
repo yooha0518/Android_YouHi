@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -20,6 +19,7 @@ import com.yoohayoung.youhi.auth.UserModel
 import com.yoohayoung.youhi.databinding.ActivityMyPageBinding
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef
+import com.yoohayoung.youhi.utils.GlideOptions
 import com.yoohayoung.youhi.utils.ResponseInterceptor
 import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
@@ -43,17 +43,14 @@ class MyPageActivity : AppCompatActivity() {
             // Glide로 선택된 이미지를 ImageView에 표시
             Glide.with(this)
                 .load(it)
-                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
-                .error(R.drawable.default_profile) // 에러 시 표시할 이미지
+                .apply(GlideOptions.myPageProfileOptions)
                 .into(binding.IVProfile)
 
             // Glide를 사용해 Bitmap으로 로드 후 서버 업로드
             Glide.with(this)
                 .asBitmap() // Bitmap으로 로드
                 .load(it)
-                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+                .apply(GlideOptions.myPageProfileOptions)
                 .into(object : com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
                     override fun onResourceReady(resource: Bitmap, transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?) {
                         // Bitmap을 받으면 reqUploadProfileImage 호출
@@ -156,8 +153,7 @@ class MyPageActivity : AppCompatActivity() {
     private fun loadProfileImage(uid: String) {
         Glide.with(this)
             .load("http://youhi.tplinkdns.com:4000/${uid}.jpg")
-            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .apply(GlideOptions.myPageProfileOptions)
             .into(binding.IVProfile)
     }
 

@@ -97,7 +97,7 @@ class LikeFragment : Fragment(), LikeRVAdapter.BoardActionListener {
                             // 모든 데이터 로드 완료 후 RecyclerView 업데이트
                             if (tasks.all { it.isComplete }) {
                                 rvAdapter.notifyDataSetChanged()
-                                Log.d("getLikeListData", "Like List: $likeBoardDataList")
+//                                Log.d("getLikeListData", "Like List: $likeBoardDataList")
                             }
                         }.addOnFailureListener {
                             Log.e("Firebase", "Failed to load title for $boardId")

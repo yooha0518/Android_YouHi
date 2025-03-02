@@ -3,6 +3,7 @@ package com.yoohayoung.youhi.event
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.yoohayoung.youhi.EventModel
 import com.yoohayoung.youhi.databinding.ActivityCreateEventBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
@@ -18,7 +19,7 @@ class CreateEventActivity : AppCompatActivity() {
 
 
         selectedDate = intent.getStringExtra("selectedDate").toString()
-        Log.d("selectedDate","$selectedDate")
+
 
         binding.addEventButton.setOnClickListener {
             addEvent()
@@ -31,10 +32,12 @@ class CreateEventActivity : AppCompatActivity() {
 
         val eventKey = FBRef.eventsRef.push().key.toString() // 데이터가 생성되기 전에 키값을 먼저 받을 수 있다.
 
+        Log.d("selectedDate","$selectedDate")
+
         FBRef.eventsRef
             .child(selectedDate)
             .child(eventKey)
-            .setValue(EventModel(selectedDate, eventTitle, CB_eventIsPrivate, FBAuth.getUid()))
+            .setValue(EventModel(eventKey, selectedDate, eventTitle, CB_eventIsPrivate, FBAuth.getUid()))
 
         finish()
     }

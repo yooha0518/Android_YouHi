@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,14 +22,12 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.yoohayoung.youhi.R
-import com.yoohayoung.youhi.comment.CommentModel
 import com.yoohayoung.youhi.comment.CommentRVAdapter
 import com.yoohayoung.youhi.databinding.ActivityBoardInsideBinding
 import com.yoohayoung.youhi.messageData
@@ -42,14 +41,22 @@ import java.io.File
 import java.io.IOException
 import java.io.OutputStream
 import android.graphics.drawable.Drawable
+import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.request.target.Target
+import com.yoohayoung.youhi.Board
+import com.yoohayoung.youhi.CommentModel
+import com.yoohayoung.youhi.utils.GlideOptions
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.boardImageOptions
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.detailImageOptions
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.profileOptions
 import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import java.io.FileOutputStream
 
-class BoardInsideActivity : AppCompatActivity() {
+class BoardInsideActivity : AppCompatActivity(), CommentRVAdapter.CommentActionListener {
     private val TAG = BoardInsideActivity::class.java.simpleName
     private lateinit var binding : ActivityBoardInsideBinding
     private lateinit var boardId:String
@@ -85,9 +92,10 @@ class BoardInsideActivity : AppCompatActivity() {
         }
 
         getCommentData(boardId)
-        commentAdapter = CommentRVAdapter(commentDataList)
+        commentAdapter = CommentRVAdapter(commentDataList,this)
         binding.RVComment.layoutManager = LinearLayoutManager(this)
         binding.RVComment.adapter = commentAdapter
+
 
         binding.IVBoard.setOnClickListener {
             showImageDialog(boardId)
@@ -123,15 +131,60 @@ class BoardInsideActivity : AppCompatActivity() {
             }
         }
 
-        // 댓글 아이템 클릭 시 수정 다이얼로그 띄우기
-        commentAdapter.setOnItemClickListener(object : CommentRVAdapter.OnItemClickListener {
-            override fun onEditClick(position: Int) {
-                showEditCommentDialog(position)
+        // 키보드가 올라왔을 때 자동 스크롤
+        binding.SVBoardInside.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = Rect()
+            binding.SVBoardInside.getWindowVisibleDisplayFrame(rect)
+            val screenHeight =  binding.SVBoardInside.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+
+            if (keypadHeight > screenHeight * 0.15) { // 키보드가 올라온 경우 (키보드가 화면의 15%이상 차지하면 실행)
+                binding.SVBoardInside.postDelayed({
+                binding.SVBoardInside.fullScroll(View.FOCUS_DOWN)
+
+                // EditText에 포커스를 다시 맞추기
+                binding.ETEditComment.requestFocus()
+                }, 200) //키보드가 올라오는 속도 맞추기
             }
-
-        })
-
+        }
     }
+
+    override fun onCommentLongClick(position: Int) {
+        showEditCommentDialog(position)
+    }
+
+    //스크롤뷰에서 리사이클러뷰 아이템을 스크롤하기 위한 height동적설정
+    private fun setRecyclerViewHeight(recyclerView: RecyclerView) {
+        val adapter = recyclerView.adapter ?: return
+
+        var totalHeight = 0
+
+        for (position in 0 until adapter.itemCount) {
+            val viewHolder = adapter.createViewHolder(recyclerView, adapter.getItemViewType(position))
+            adapter.onBindViewHolder(viewHolder, position)
+
+            // 아이템의 높이 계산
+            viewHolder.itemView.measure(
+                View.MeasureSpec.makeMeasureSpec(recyclerView.width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.UNSPECIFIED
+            )
+
+            val itemHeight = viewHolder.itemView.measuredHeight
+
+            // 마진 계산 (아이템의 상/하 마진을 포함)
+            val layoutParams = viewHolder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+            val marginTop = layoutParams.topMargin
+            val marginBottom = layoutParams.bottomMargin
+
+            totalHeight += itemHeight + marginTop + marginBottom
+        }
+
+        val params = recyclerView.layoutParams
+        params.height = totalHeight + recyclerView.paddingTop + recyclerView.paddingBottom
+        recyclerView.layoutParams = params
+        recyclerView.requestLayout()
+    }
+
 
     private fun addIdToExistingComments(key: String) { //이전 버전 댓글들은 id가 없어서 추가하는 함수
         FBRef.commentRef.child(key).addListenerForSingleValueEvent(object : ValueEventListener {
@@ -162,12 +215,10 @@ class BoardInsideActivity : AppCompatActivity() {
         })
     }
 
-
     private fun showEditCommentDialog(position: Int) {
         val commentId = commentDataList[position].id  // 수정할 댓글 ID
         val currentComment = commentDataList[position]
 
-        // 다이얼로그 레이아웃 인플레이트
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_comment, null)
         val editText = dialogView.findViewById<EditText>(R.id.et_edit_comment)
         val btnSave = dialogView.findViewById<Button>(R.id.btn_save)
@@ -180,7 +231,7 @@ class BoardInsideActivity : AppCompatActivity() {
         val dialog = Dialog(this)
         dialog.setContentView(dialogView)
         dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        dialog.setCancelable(false)  // 다이얼로그 바깥 터치로 닫히지 않도록 설정
+//        dialog.setCancelable(false)  // 다이얼로그 바깥 터치로 닫히지 않도록 설정
 
         // 저장 버튼 클릭 리스너
         btnSave.setOnClickListener {
@@ -246,6 +297,8 @@ class BoardInsideActivity : AppCompatActivity() {
                     commentDataList.add(item!!)
                 }
                 commentAdapter.notifyDataSetChanged()
+
+                setRecyclerViewHeight(binding.RVComment)
             }
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
@@ -256,7 +309,7 @@ class BoardInsideActivity : AppCompatActivity() {
     }
 
     private fun insertComment(boardId: String) {
-        val commentText = binding.commentArea.text.toString().trim()
+        val commentText = binding.ETEditComment.text.toString().trim()
 
         if (commentText.isNotEmpty()) {
             val newCommentRef = FBRef.commentRef.child(boardId).push() // 새로운 댓글 참조 생성
@@ -273,10 +326,13 @@ class BoardInsideActivity : AppCompatActivity() {
                             id = commentId ?: "" // 고유 키가 없을 경우 빈 문자열
                         )
                     )
+
+//                getCommentData(boardId)
             }
 
+
             Toast.makeText(this, "댓글 입력 완료", Toast.LENGTH_SHORT).show()
-            binding.commentArea.setText("")
+            binding.ETEditComment.setText("")
 
             // 닉네임을 가져와서 sendMsgApiRequest 호출
             FBRef.userRef.child(getUid()).child("nickName")
@@ -319,10 +375,10 @@ class BoardInsideActivity : AppCompatActivity() {
     private fun getImageData(boardId: String) {
         // 액티비티가 종료되지 않았는지 확인
         if (!isDestroyed) {
+            Log.d("getImageData", "액티비티 종료 안됨")
             Glide.with(this)
                 .load("http://youhi.tplinkdns.com:4000/${boardId}.jpg")
-                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+                .apply(boardImageOptions)
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -387,7 +443,7 @@ class BoardInsideActivity : AppCompatActivity() {
             "board2" -> FBRef.boardRef2.child(boardId).addValueEventListener(postListener)
             "board3" -> FBRef.boardRef3.child(boardId).addValueEventListener(postListener)
             "board4" -> FBRef.boardRef4.child(boardId).addValueEventListener(postListener)
-            else -> Log.e("BoardInsideActivity", "Invalid category!")
+            else -> Log.e("BoardInsideActivity", "카테고리가 없습니다.")
         }
     }
 
@@ -415,13 +471,10 @@ class BoardInsideActivity : AppCompatActivity() {
         })
     }
 
-
     private fun loadProfileImage(uid: String) {
         Glide.with(this)
             .load("http://youhi.tplinkdns.com:4000/${uid}.jpg")
-            .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
-            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .apply(profileOptions)
             .into(binding.IVProfile)
     }
 
@@ -465,8 +518,6 @@ class BoardInsideActivity : AppCompatActivity() {
                     Log.d("좋아요 해제", "실패")
                 }
 
-
-
             // TODO: 이미지 삭제
 
             Toast.makeText(this, "삭제 완료",Toast.LENGTH_SHORT).show()
@@ -488,8 +539,7 @@ class BoardInsideActivity : AppCompatActivity() {
         if (IV_board != null) {
             Glide.with(this)
                 .load(imageUrl)
-                .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-                .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+                .apply(detailImageOptions)
                 .into(IV_board)
         }
 
@@ -500,11 +550,10 @@ class BoardInsideActivity : AppCompatActivity() {
 
     // Glide를 이용해 이미지 다운로드 후 저장
     private fun downloadAndSaveImage(context: Context, imageUrl: String, fileName: String) {
-        Glide.with(context)
+        Glide.with(this)
             .asBitmap()
             .load(imageUrl)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .skipMemoryCache(true)
+            .apply(detailImageOptions)
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     val file = File(context.cacheDir, fileName)
@@ -590,11 +639,4 @@ class BoardInsideActivity : AppCompatActivity() {
             Log.e("apiResponse", "Error", e)
         }
     }
-
-    override fun onStop() {
-        super.onStop()
-    }
-
-
-
 }

@@ -49,9 +49,6 @@
         </service>
 
         <activity
-            android:name=".board.ImageDetailActivity"
-            android:exported="false" />
-        <activity
             android:name=".settting.SettingActivity"
             android:exported="false" />
         <activity

@@ -9,6 +9,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.yoohayoung.youhi.Board
 import com.yoohayoung.youhi.databinding.ActivityBoardListBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
@@ -105,7 +106,7 @@ class BoardListActivity : AppCompatActivity(),BoardListRVAdapter.BoardActionList
             "board2" -> FBRef.boardRef2.addValueEventListener(postListener)
             "board3" -> FBRef.boardRef3.addValueEventListener(postListener)
             "board4" -> FBRef.boardRef4.addValueEventListener(postListener)
-            else -> Log.e("error", "!!!! category가 없습니다")
+            else -> Log.e("BoardListActivity", "카테고리가 없습니다.")
         }
     }
 

@@ -1,5 +1,7 @@
 package com.yoohayoung.youhi.fragments
 
+import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +9,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.navigation.findNavController
 import com.yoohayoung.youhi.CalendarAdapter
 import com.yoohayoung.youhi.CalendarDay
@@ -18,16 +24,16 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.yoohayoung.youhi.EventModel
 import com.yoohayoung.youhi.event.CreateEventActivity
 import com.yoohayoung.youhi.databinding.FragmentCalenderBinding
 import com.yoohayoung.youhi.event.DayEventAdapter
-import com.yoohayoung.youhi.event.EventModel
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 import java.text.ParseException
 import java.util.Date
 
-class CalenderFragment : Fragment() {
+class CalenderFragment : Fragment(),CalendarAdapter.DayActionListener, DayEventAdapter.EventActionListener {
 
     private var _binding: FragmentCalenderBinding? = null
     private val binding get() = _binding!!
@@ -51,22 +57,14 @@ class CalenderFragment : Fragment() {
         _binding = FragmentCalenderBinding.inflate(inflater, container, false)
 
         val daysInMonth = getDaysInMonthArray()
-        calendarAdapter = CalendarAdapter(daysInMonth, calendar) { day ->
-            selectedDate = getDateForDay(day) //클릭 이벤트 리스너
-            updateSelectedDate(day)
-            Log.d("calendar Click","day: $day")
 
-            dateStr = dateFormat.format(selectedDate)
-
-            loadDayEvents(dateStr)
-        }
+        calendarAdapter = CalendarAdapter(daysInMonth, calendar, this)
         binding.calendarRecyclerView.layoutManager = GridLayoutManager(context, 7)  // 7일로 그리드 레이아웃 설정
         binding.calendarRecyclerView.adapter = calendarAdapter
 
-        dayEventAdapter = DayEventAdapter(eventsList)
+        dayEventAdapter = DayEventAdapter(eventsList, this)
         binding.RVDayEventList.layoutManager = GridLayoutManager(context, 1)
         binding.RVDayEventList.adapter = dayEventAdapter
-
 
         updateMonthYearText()
         loadFriendsAndEventLoad()
@@ -103,6 +101,19 @@ class CalenderFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onDayListClick(day: CalendarDay) {
+        selectedDate = getDateForDay(day) //클릭 이벤트 리스너
+        updateSelectedDate(day)
+
+        dateStr = dateFormat.format(selectedDate)
+
+        loadDayEvents(dateStr)
+    }
+
+    override fun onEventLongClick(event: EventModel) {
+        showEditEventAlertDialog(event)
     }
 
     private fun updateMonthYearText() {
@@ -149,7 +160,6 @@ class CalenderFragment : Fragment() {
             val formattedDay = SimpleDateFormat("d", Locale.getDefault()).format(date)
             val fullDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
             val eventList = events[fullDate] ?: mutableListOf()
-
 
             daysInMonth.add(CalendarDay(formattedDay, eventList))
         }
@@ -251,8 +261,6 @@ class CalenderFragment : Fragment() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dateStr = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}-${day.day.padStart(2, '0')}"
 
-
-        Log.d("updateSelectedDate","click")
         selectedDate = try {
             dateFormat.parse(dateStr)
         } catch (e: ParseException) {
@@ -262,13 +270,11 @@ class CalenderFragment : Fragment() {
 
     }
 
-    private fun loadDayEvents(dateStr: String){
-        // "events" 경로에서 해당 날짜의 데이터를 가져오기
-        val eventsRef = FBRef.eventsRef.child(dateStr)
-        Log.d("선택한 날짜의 데이터","$eventsRef")
+    private fun loadDayEvents(dateStr: String) {
+        Log.d("선택한 날짜의 데이터", "${FBRef.eventsRef.child(dateStr)}")
 
         // 데이터 쿼리
-        eventsRef.addValueEventListener(object : ValueEventListener {
+        FBRef.eventsRef.child(dateStr).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 eventsList.clear()
                 val currentUserUid = FBAuth.getUid()
@@ -298,5 +304,77 @@ class CalenderFragment : Fragment() {
         })
 
     }
+
+    private fun showEditEventAlertDialog(event: EventModel) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_event, null)
+
+        val editTextDate = dialogView.findViewById<EditText>(R.id.et_edit_date)
+        val editTextTitle = dialogView.findViewById<EditText>(R.id.et_edit_title)
+        val switchPrivate = dialogView.findViewById<SwitchCompat>(R.id.switch_private)
+        val btnSave = dialogView.findViewById<Button>(R.id.btn_save)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        val btnDelete = dialogView.findViewById<Button>(R.id.btn_delete)
+
+        Log.d("showEditEventAlertDialog", "event: $event")
+
+        // 기존 값 설정
+        editTextDate.setText(event.date)
+        editTextTitle.setText(event.title)
+        switchPrivate.isChecked = event.private
+
+        // 날짜 선택을 위한 DatePickerDialog 설정
+        editTextDate.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val datePickerDialog = DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
+                val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                editTextDate.setText(formattedDate) // 선택한 날짜를 EditText에 설정
+            }, year, month, day)
+
+            datePickerDialog.show()
+        }
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(dialogView)
+            .create()
+
+        // 저장 버튼 클릭 리스너
+        btnSave.setOnClickListener {
+            val updatedDate = editTextDate.text.toString().trim()
+            val updatedTitle = editTextTitle.text.toString().trim()
+            val updatedPrivate = switchPrivate.isChecked
+
+            if (updatedDate.isNotEmpty() && updatedTitle.isNotEmpty()) {
+                val updatedEvent = event.copy(date = updatedDate, title = updatedTitle, private = updatedPrivate)
+                // 데이터베이스 업데이트
+                FBRef.eventsRef.child(event.date).child(event.eventId).removeValue()
+                FBRef.eventsRef.child(updatedDate).child(event.eventId).setValue(updatedEvent)
+                Toast.makeText(context, "이벤트 수정 완료", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            } else {
+                Toast.makeText(context, "날짜와 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // 삭제 버튼 클릭 리스너
+        btnDelete.setOnClickListener {
+            FBRef.eventsRef.child(event.date).child(event.eventId).removeValue()
+            Toast.makeText(context, "이벤트 삭제 완료", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        // 취소 버튼 클릭 리스너
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+
+
 
 }

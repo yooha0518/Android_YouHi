@@ -9,8 +9,10 @@
         android:background="@drawable/background_gradient">
 
         <ScrollView
+            android:id="@+id/SV_board_inside"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginBottom="60dp">
 
 
             <LinearLayout
@@ -151,8 +153,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/RV_comment"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="60dp" />
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"/>
 
             </LinearLayout>
 
@@ -165,7 +167,7 @@
             android:layout_height="60dp">
 
             <EditText
-                android:id="@+id/commentArea"
+                android:id="@+id/ET_edit_comment"
                 android:hint="댓글을 입력해주세요"
                 android:layout_width="0dp"
                 android:layout_weight="10"

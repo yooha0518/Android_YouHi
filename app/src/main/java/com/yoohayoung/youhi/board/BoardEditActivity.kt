@@ -10,15 +10,15 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.yoohayoung.youhi.Board
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.databinding.ActivityBoardEditBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
-import com.yoohayoung.youhi.utils.ResponseInterceptor
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.boardImageOptions
 import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,16 +27,14 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
-import java.util.concurrent.TimeUnit
 
 class BoardEditActivity : AppCompatActivity() {
     private lateinit var binding : ActivityBoardEditBinding
-    private lateinit var boardId:String
+    private var boardId:String? = null
     private lateinit var writerUid : String
-    private lateinit var category :String
+    private var category :String? = null
 
     private var imageSelected: Boolean = false
 
@@ -61,14 +59,20 @@ class BoardEditActivity : AppCompatActivity() {
         binding = ActivityBoardEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        boardId = intent.getStringExtra("boardId").toString()
-        category = intent.getStringExtra("category").toString()
+        boardId = intent.getStringExtra("boardId")
+        category = intent.getStringExtra("category")
 
-        getBoardData(boardId)
-        getBoardImage(boardId)
+        boardId?.let {
+            getBoardData(boardId!!)
+            getBoardImage(boardId!!)
+        }
+
+
 
         binding.editBtn.setOnClickListener {
-            editBoardData(boardId)
+            boardId?.let {
+                editBoardData(boardId!!)
+            }
         }
 
         binding.IVBoard.setOnClickListener {
@@ -79,7 +83,6 @@ class BoardEditActivity : AppCompatActivity() {
     }
 
     private fun editBoardData(boardId : String){
-
         if(category.equals("board1")){
             FBRef.boardRef1
                 .child(boardId)
@@ -173,8 +176,7 @@ class BoardEditActivity : AppCompatActivity() {
     private fun getBoardImage(boardId : String){
         Glide.with(this)
             .load("http://youhi.tplinkdns.com:4000/${boardId}.jpg")
-            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .apply(boardImageOptions)
             .error(R.drawable.plusbtn_blue)
             .into(binding.IVBoard)
         
@@ -208,16 +210,5 @@ class BoardEditActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun createOkHttpClient(): OkHttpClient {
-        val interceptor = ResponseInterceptor()
-
-        return OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
-            .build()
-    }
 
 }

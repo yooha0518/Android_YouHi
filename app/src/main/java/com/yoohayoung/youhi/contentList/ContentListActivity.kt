@@ -13,19 +13,17 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.yoohayoung.youhi.ContentModel
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 
 class ContentListActivity : AppCompatActivity() {
-
-    lateinit var myRef : DatabaseReference
-
     val bookmarkIdList = mutableListOf<String>()
-
     lateinit var rvAdapter:ContentRVAdapter
     val items = ArrayList<ContentModel>()
     val itemKeyList = ArrayList<String>()
+    var category:String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,17 +31,7 @@ class ContentListActivity : AppCompatActivity() {
 
         rvAdapter = ContentRVAdapter(baseContext, items, itemKeyList, bookmarkIdList)
 
-        val database = Firebase.database
-        myRef = database.getReference("content")
-
-        val category = intent.getStringExtra("category")
-
-        if(category == "category1") {
-            myRef = database.getReference("contents1")
-
-        } else if(category == "category2") {
-            myRef = database.getReference("contents2")
-        }
+        category = intent.getStringExtra("category")
 
         getCategoryData()
         getBookmarkData()
@@ -77,7 +65,14 @@ class ContentListActivity : AppCompatActivity() {
                 Log.w("ContentListActivity", "loadPost:onCancelled")
             }
         }
-        myRef.addValueEventListener(postListener)
+        when(category){
+            "board1" -> FBRef.boardRef1.addValueEventListener(postListener)
+            "board2" -> FBRef.boardRef2.addValueEventListener(postListener)
+            "board3" -> FBRef.boardRef3.addValueEventListener(postListener)
+            "board4" -> FBRef.boardRef4.addValueEventListener(postListener)
+            else -> Log.e("ContentListActivity","카테고리가 없습니다.")
+        }
+
     }
 
     private fun getBookmarkData(){

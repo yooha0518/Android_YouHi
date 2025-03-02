@@ -10,12 +10,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.yoohayoung.youhi.R
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.boardImageOptions
 
 data class LikeData(
     val boardId: String,
@@ -47,8 +47,7 @@ class LikeRVAdapter(private val boardList: MutableList<LikeData>, private val bo
 
         Glide.with(holder.IV_like.context)
             .load("http://youhi.tplinkdns.com:4000/${likeData.boardId}.jpg")
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .skipMemoryCache(true)
+            .apply(boardImageOptions)
             .transform(CenterCrop(), RoundedCorners(10))
             .addListener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(

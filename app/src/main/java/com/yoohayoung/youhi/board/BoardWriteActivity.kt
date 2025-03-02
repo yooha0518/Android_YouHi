@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.yoohayoung.youhi.Board
 import com.yoohayoung.youhi.databinding.ActivityBoardWriteBinding
 import com.yoohayoung.youhi.messageData
 import com.yoohayoung.youhi.utils.FBAuth

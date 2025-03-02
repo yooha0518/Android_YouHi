@@ -1,26 +1,26 @@
 package com.yoohayoung.youhi
 
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.yoohayoung.youhi.event.EventModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-data class CalendarDay(val day: String, val events: MutableList<EventModel>) // 이벤트 배열로 변경
-
 class CalendarAdapter(
     private var days: List<CalendarDay>,
     private val calendar: Calendar,
-    private val onItemClick: (CalendarDay) -> Unit
+    private val dayActionListener:DayActionListener
 ) : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
+
+    interface DayActionListener{
+        fun onDayListClick(day:CalendarDay)
+    }
 
     // 선택된 날짜를 문자열로 저장
     private var selectedDate: String? = null
@@ -106,7 +106,7 @@ class CalendarAdapter(
                 // 전체 아이템 새로고침
                 notifyDataSetChanged()
 
-                onItemClick(day)
+                dayActionListener.onDayListClick(day)
             }
         }
     }

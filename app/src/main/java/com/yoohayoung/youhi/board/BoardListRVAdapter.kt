@@ -3,17 +3,17 @@ package com.yoohayoung.youhi.board
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.yoohayoung.youhi.Board
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.utils.FBAuth
+import com.yoohayoung.youhi.utils.GlideOptions
 import de.hdodenhof.circleimageview.CircleImageView
 
 
-class BoardListRVAdapter(private val boardList: MutableList<Board>,
+class BoardListRVAdapter(private val boardList: List<Board>,
                          private val boardActionListener:BoardActionListener
 ) : RecyclerView.Adapter<BoardListRVAdapter.BoardViewHolder>() {
 
@@ -45,9 +45,7 @@ class BoardListRVAdapter(private val boardList: MutableList<Board>,
         // 프로필 이미지를 Glide를 사용하여 로드
         Glide.with(holder.IV_profile.context)
             .load("http://youhi.tplinkdns.com:4000/${board.uid}.jpg")
-            .error(R.drawable.default_profile) // 로드 실패 시 기본 이미지 로드
-            .diskCacheStrategy(DiskCacheStrategy.NONE) // 디스크 캐시 사용 안 함
-            .skipMemoryCache(true) // 메모리 캐시 사용 안 함
+            .apply(GlideOptions.profileOptions)
             .into(holder.IV_profile)
 
         // 닉네임을 비동기적으로 가져와서 설정
