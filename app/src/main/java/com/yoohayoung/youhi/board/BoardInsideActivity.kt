@@ -28,7 +28,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.yoohayoung.youhi.R
-import com.yoohayoung.youhi.comment.CommentRVAdapter
+import com.yoohayoung.youhi.comment.CommentAdapter
 import com.yoohayoung.youhi.databinding.ActivityBoardInsideBinding
 import com.yoohayoung.youhi.messageData
 import com.yoohayoung.youhi.utils.FBAuth
@@ -49,14 +49,16 @@ import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.request.target.Target
 import com.yoohayoung.youhi.Board
 import com.yoohayoung.youhi.CommentModel
-import com.yoohayoung.youhi.utils.GlideOptions
+import com.yoohayoung.youhi.databinding.DialogEditCommentBinding
+import com.yoohayoung.youhi.databinding.EditBoardDialogBinding
+import com.yoohayoung.youhi.databinding.ImageDialogBinding
 import com.yoohayoung.youhi.utils.GlideOptions.Companion.boardImageOptions
 import com.yoohayoung.youhi.utils.GlideOptions.Companion.detailImageOptions
 import com.yoohayoung.youhi.utils.GlideOptions.Companion.profileOptions
 import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import java.io.FileOutputStream
 
-class BoardInsideActivity : AppCompatActivity(), CommentRVAdapter.CommentActionListener {
+class BoardInsideActivity : AppCompatActivity(), CommentAdapter.CommentActionListener {
     private val TAG = BoardInsideActivity::class.java.simpleName
     private lateinit var binding : ActivityBoardInsideBinding
     private lateinit var boardId:String
@@ -65,7 +67,7 @@ class BoardInsideActivity : AppCompatActivity(), CommentRVAdapter.CommentActionL
 
     private val commentDataList = mutableListOf<CommentModel>()
 
-    private lateinit var commentAdapter : CommentRVAdapter
+    private lateinit var commentAdapter : CommentAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,7 +94,7 @@ class BoardInsideActivity : AppCompatActivity(), CommentRVAdapter.CommentActionL
         }
 
         getCommentData(boardId)
-        commentAdapter = CommentRVAdapter(commentDataList,this)
+        commentAdapter = CommentAdapter(commentDataList,this)
         binding.RVComment.layoutManager = LinearLayoutManager(this)
         binding.RVComment.adapter = commentAdapter
 
@@ -219,19 +221,19 @@ class BoardInsideActivity : AppCompatActivity(), CommentRVAdapter.CommentActionL
         val commentId = commentDataList[position].id  // 수정할 댓글 ID
         val currentComment = commentDataList[position]
 
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_comment, null)
-        val editText = dialogView.findViewById<EditText>(R.id.et_edit_comment)
-        val btnSave = dialogView.findViewById<Button>(R.id.btn_save)
-        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
-        val btn_delete = dialogView.findViewById<Button>(R.id.btn_delete)
+        val binding = DialogEditCommentBinding.inflate(LayoutInflater.from(this))
+
+        val editText = binding.etEditComment
+        val btnSave = binding.btnSave
+        val btnCancel = binding.btnCancel
+        val btn_delete = binding.btnDelete
 
         editText.setText(currentComment.comment)
 
         // 다이얼로그 생성
         val dialog = Dialog(this)
-        dialog.setContentView(dialogView)
+        dialog.setContentView(binding.root)
         dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-//        dialog.setCancelable(false)  // 다이얼로그 바깥 터치로 닫히지 않도록 설정
 
         // 저장 버튼 클릭 리스너
         btnSave.setOnClickListener {
@@ -472,44 +474,45 @@ class BoardInsideActivity : AppCompatActivity(), CommentRVAdapter.CommentActionL
     }
 
     private fun loadProfileImage(uid: String) {
-        Glide.with(this)
-            .load("http://youhi.tplinkdns.com:4000/${uid}.jpg")
-            .apply(profileOptions)
-            .into(binding.IVProfile)
+        if (!isDestroyed) {
+            Glide.with(this)
+                .load("http://youhi.tplinkdns.com:4000/${uid}.jpg")
+                .apply(profileOptions)
+                .into(binding.IVProfile)
+        }
     }
 
     private fun showEditDialog(){
-        val mDialogView = LayoutInflater.from(this).inflate(R.layout.edit_board_dialog, null)
-        val mBuilder = AlertDialog.Builder(this)
-            .setView(mDialogView)
+        val binding = EditBoardDialogBinding.inflate(LayoutInflater.from(this))
 
+        val dialog = AlertDialog.Builder(this)
+            .setView(binding.root)
+            .create()
 
-        val alertDialog = mBuilder.show()
-        alertDialog.findViewById<Button>(R.id.editBtn)?.setOnClickListener{
+        val BTN_edit = binding.editBtn
+        val BTN_remove = binding.removeBtn
+
+        BTN_edit.setOnClickListener{
             val intent = Intent(this, BoardEditActivity::class.java)
 
             intent.putExtra("boardId",boardId)
             intent.putExtra("category", category)
 
-            alertDialog.dismiss()
+            dialog.dismiss()
             startActivity(intent)
         }
-        alertDialog.findViewById<Button>(R.id.removeBtn)?.setOnClickListener{
-            if(category.equals("board1")){
-                FBRef.boardRef1.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("board2")){
-                FBRef.boardRef2.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("board3")){
-                FBRef.boardRef3.child(boardId).removeValue() //게시글 삭제
-            }else if(category.equals("board4")){
-                FBRef.boardRef4.child(boardId).removeValue() //게시글 삭제
-            }else{
-                Log.e("error", "category가 없습니다")
+
+        BTN_remove.setOnClickListener{
+            when (category) {
+                "board1" -> FBRef.boardRef1.child(boardId).removeValue() // 게시글 삭제
+                "board2" -> FBRef.boardRef2.child(boardId).removeValue() // 게시글 삭제
+                "board3" -> FBRef.boardRef3.child(boardId).removeValue() // 게시글 삭제
+                "board4" -> FBRef.boardRef4.child(boardId).removeValue() // 게시글 삭제
+                else -> Log.e("error", "category가 없습니다")
             }
 
             //like_list 삭제
-            val ref = FBRef.likeRef.child(getUid()).child(boardId)
-            ref.removeValue()
+            FBRef.likeRef.child(getUid()).child(boardId).removeValue()
                 .addOnSuccessListener {
                     Log.d("좋아요 해제","성공")
                     islike = false
@@ -518,34 +521,37 @@ class BoardInsideActivity : AppCompatActivity(), CommentRVAdapter.CommentActionL
                     Log.d("좋아요 해제", "실패")
                 }
 
-            // TODO: 이미지 삭제
+            // TODO: 서버에서도 이미지 삭제
 
             Toast.makeText(this, "삭제 완료",Toast.LENGTH_SHORT).show()
             finish()
         }
 
+        dialog.show()
     }
 
     private fun showImageDialog(boardId : String) {
-        val mDialogView = LayoutInflater.from(this).inflate(R.layout.image_dialog, null)
-        val mBuilder = AlertDialog.Builder(this)
-            .setView(mDialogView)
-        val alertDialog = mBuilder.show()
-        val imageDownBtn = alertDialog.findViewById<ImageView>(R.id.imageDownBtn)
-        val IV_board = alertDialog.findViewById<ImageView>(R.id.dialog_imageArea)
+        val binding = ImageDialogBinding.inflate(LayoutInflater.from(this))
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(binding.root)
+            .create()
+
+        val IV_board = binding.IVBoard
+        val IV_imageDown = binding.IVImageDown
 
         val imageUrl = "http://youhi.tplinkdns.com:4000/${boardId}.jpg"
 
-        if (IV_board != null) {
-            Glide.with(this)
-                .load(imageUrl)
-                .apply(detailImageOptions)
-                .into(IV_board)
-        }
+        Glide.with(this)
+            .load(imageUrl)
+            .apply(detailImageOptions)
+            .into(IV_board)
 
-        imageDownBtn?.setOnClickListener {
+        IV_imageDown.setOnClickListener {
             downloadAndSaveImage(this, imageUrl, "${boardId}.png")
         }
+
+        dialog.show()
     }
 
     // Glide를 이용해 이미지 다운로드 후 저장

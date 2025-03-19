@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.yoohayoung.youhi.databinding.ItemCalendarDayBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -26,17 +27,17 @@ class CalendarAdapter(
     private var selectedDate: String? = null
     private val todayDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) // 오늘 날짜
 
-    class DayViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val dayText: TextView = view.findViewById(R.id.dayText)
-        val ET_eventTitle1: TextView = view.findViewById(R.id.ET_eventTitle1)
-        val ET_eventTitle2: TextView = view.findViewById(R.id.ET_eventTitle2)
-        val ET_eventTitle3: TextView = view.findViewById(R.id.ET_eventTitle3)
-        val LL_calender_day: LinearLayout = view.findViewById(R.id.LL_calender_day)
+    class DayViewHolder(binding: ItemCalendarDayBinding) : RecyclerView.ViewHolder(binding.root) {
+        val dayText: TextView = binding.dayText
+        val ET_eventTitle1: TextView = binding.ETEventTitle1
+        val ET_eventTitle2: TextView = binding.ETEventTitle2
+        val ET_eventTitle3: TextView = binding.ETEventTitle3
+        val LL_calender_day: LinearLayout = binding.LLCalenderDay
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_calendar_day, parent, false)
-        return DayViewHolder(view)
+        val binding = ItemCalendarDayBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DayViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {

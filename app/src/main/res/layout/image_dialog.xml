@@ -4,17 +4,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-
-
     <ImageView
-        android:id="@+id/dialog_imageArea"
+        android:id="@+id/IV_board"
         android:layout_width="match_parent"
         android:layout_height="600dp"
         android:layout_marginTop="10dp"
         />
 
     <ImageView
-        android:id="@+id/imageDownBtn"
+        android:id="@+id/IV_imageDown"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:src="@drawable/image_down_btn"

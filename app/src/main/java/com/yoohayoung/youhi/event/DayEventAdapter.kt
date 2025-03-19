@@ -9,26 +9,27 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.yoohayoung.youhi.EventModel
 import com.yoohayoung.youhi.R
+import com.yoohayoung.youhi.databinding.ItemDayEventBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.GlideOptions
 import de.hdodenhof.circleimageview.CircleImageView
 
 class DayEventAdapter(
-    private val events:List<EventModel>, private val eventActionListener: EventActionListener
+    private var events:List<EventModel>, private val eventActionListener: EventActionListener
 ) : RecyclerView.Adapter<DayEventAdapter.EventViewHolder>() {
 
     interface EventActionListener{
         fun onEventLongClick(eventModel: EventModel)
     }
-    class EventViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val CIV_profile: CircleImageView = view.findViewById(R.id.CIV_profile)
-        val TV_date: TextView = view.findViewById(R.id.TV_date)
-        val TV_nickName: TextView = view.findViewById(R.id.TV_nickName)
-        val TV_event: TextView = view.findViewById(R.id.TV_event)
+    class EventViewHolder(binding: ItemDayEventBinding) : RecyclerView.ViewHolder(binding.root) {
+        val CIV_profile: CircleImageView = binding.CIVProfile
+        val TV_date: TextView = binding.TVDate
+        val TV_nickName: TextView = binding.TVNickName
+        val TV_event: TextView = binding.TVEvent
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_day_event, parent, false)
-        return EventViewHolder(view)
+        val binding = ItemDayEventBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return EventViewHolder(binding)
     }
 
     override fun getItemCount(): Int = events.size
@@ -64,5 +65,10 @@ class DayEventAdapter(
         }
 
     }
+    fun updateData(newEvents: List<EventModel>) {
+        events = newEvents
+        notifyDataSetChanged()                  // RecyclerView 갱신
+    }
+
 
 }

@@ -3,8 +3,10 @@ package com.yoohayoung.youhi.board
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -19,6 +21,7 @@ import com.yoohayoung.youhi.databinding.ActivityBoardEditBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 import com.yoohayoung.youhi.utils.GlideOptions.Companion.boardImageOptions
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.detailImageOptions
 import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,26 +30,30 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 class BoardEditActivity : AppCompatActivity() {
     private lateinit var binding : ActivityBoardEditBinding
-    private var boardId:String? = null
     private lateinit var writerUid : String
+    private var boardId:String? = null
     private var category :String? = null
-
     private var imageSelected: Boolean = false
+    private var selectedImageUri: Uri? = null
 
     // ActivityResultLauncher 정의
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val data: Intent? = result.data
-            val imageUri = data?.data
+            selectedImageUri = data?.data
 
-            if (imageUri != null) {
+            if (selectedImageUri != null) {
                 Glide.with(this)
-                    .load(imageUri)
+                    .load(selectedImageUri)
+                    .apply(boardImageOptions)
                     .into(binding.IVBoard)
 
                 imageSelected = true
@@ -137,7 +144,9 @@ class BoardEditActivity : AppCompatActivity() {
 
         Toast.makeText(this, "수정완료", Toast.LENGTH_LONG).show()
 
-        finish()
+        val intent = Intent(this, BoardListActivity::class.java)
+        intent.putExtra("category", category)
+        startActivity(intent)
 
     }
 
@@ -176,30 +185,30 @@ class BoardEditActivity : AppCompatActivity() {
     private fun getBoardImage(boardId : String){
         Glide.with(this)
             .load("http://youhi.tplinkdns.com:4000/${boardId}.jpg")
-            .apply(boardImageOptions)
+            .apply(detailImageOptions)
             .error(R.drawable.plusbtn_blue)
             .into(binding.IVBoard)
-        
+
 //        Log.d("게시글 이미지 로드","http://youhi.tplinkdns.com:4000/${boardId}.jpg 가 업로드 됨")
     }
 
     suspend fun reqUploadBoardImage(boardId: String) {
         withContext(Dispatchers.IO) {
             try {
-                val imageView = binding.IVBoard
-                imageView.isDrawingCacheEnabled = true
-                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+                // URI가 없을 경우 예외 처리
+                if (selectedImageUri == null) {
+                    Log.e("Upload", "Error: No image selected")
+                    return@withContext
+                }
 
-                val baos = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                val imageData = baos.toByteArray()
+                // 임시 파일 생성
+                val file = createTempFileFromUri(selectedImageUri!!)
 
-                val requestFile = imageData.toRequestBody("image/jpeg".toMediaType())
+                // 파일을 MultipartBody.Part로 변환
+                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
                 val imageBody = MultipartBody.Part.createFormData("image", "${boardId}.jpg", requestFile)
 
                 val boardIdBody = boardId.toRequestBody("text/plain".toMediaTypeOrNull())
-
-                Log.d("reqUploadProfileImage", "uid: $boardIdBody")
 
                 val response = apiService.uploadBoardImage(boardIdBody, imageBody)
 
@@ -210,5 +219,19 @@ class BoardEditActivity : AppCompatActivity() {
         }
     }
 
+    // URI로부터 임시 파일 생성하는 함수
+    private fun createTempFileFromUri(uri: Uri): File {
+        val fileName = "${System.currentTimeMillis()}.jpg"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val tempFile = File(storageDir, fileName)
+
+        contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(tempFile).use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        return tempFile
+    }
 
 }

@@ -14,20 +14,20 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.yoohayoung.youhi.LikeData
 import com.yoohayoung.youhi.R
 import com.yoohayoung.youhi.board.BoardInsideActivity
-import com.yoohayoung.youhi.board.LikeData
-import com.yoohayoung.youhi.board.LikeRVAdapter
+import com.yoohayoung.youhi.board.LikeAdapter
 import com.yoohayoung.youhi.databinding.FragmentLikeBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 
-class LikeFragment : Fragment(), LikeRVAdapter.BoardActionListener {
+class LikeFragment : Fragment(), LikeAdapter.BoardActionListener {
 
     private var _binding: FragmentLikeBinding? = null
     private val binding get() = _binding!!
     private var likeBoardDataList = mutableListOf<LikeData>()
-    lateinit var rvAdapter: LikeRVAdapter
+    lateinit var rvAdapter: LikeAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +52,7 @@ class LikeFragment : Fragment(), LikeRVAdapter.BoardActionListener {
 
         getLikeListData()
 
-        rvAdapter = LikeRVAdapter(likeBoardDataList, this)
+        rvAdapter = LikeAdapter(likeBoardDataList, this)
 
         val RV_like: RecyclerView = binding.RVLike
         RV_like.adapter = rvAdapter

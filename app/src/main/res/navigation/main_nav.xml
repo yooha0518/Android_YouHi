@@ -43,7 +43,7 @@
     </fragment>
     <fragment
         android:id="@+id/calenderFragment"
-        android:name="com.yoohayoung.youhi.fragments.CalenderFragment"
+        android:name="com.yoohayoung.youhi.fragments.CalendarFragment"
         android:label="fragment_store"
         tools:layout="@layout/fragment_calender" >
         <action

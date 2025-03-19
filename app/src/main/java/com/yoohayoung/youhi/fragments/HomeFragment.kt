@@ -18,8 +18,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.yoohayoung.youhi.MyPageActivity
+import com.yoohayoung.youhi.News
 import com.yoohayoung.youhi.R
-import com.yoohayoung.youhi.board.News
 import com.yoohayoung.youhi.contentList.ContentListActivity
 import com.yoohayoung.youhi.databinding.FragmentHomeBinding
 import com.yoohayoung.youhi.event.CreateEventActivity
@@ -62,8 +62,10 @@ class HomeFragment : Fragment() {
 
     private fun setupUI() {
         // 광고뷰 초기화 및 로드
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+        binding.adView?.let {
+            val adRequest = AdRequest.Builder().build()
+            it.loadAd(adRequest)
+        }
 
         binding.IVMypage.setOnClickListener {
             startActivity(Intent(context, MyPageActivity::class.java))
@@ -71,7 +73,7 @@ class HomeFragment : Fragment() {
 
         binding.IVBlog.setOnClickListener {
             val intent = Intent(context, ContentListActivity::class.java)
-            intent.putExtra("category", "category2")
+            intent.putExtra("category", "contents2")
             startActivity(intent)
         }
 
@@ -81,7 +83,7 @@ class HomeFragment : Fragment() {
 
         binding.BTNDeveloperProfile.setOnClickListener {
             val intent = Intent(context, ContentListActivity::class.java)
-            intent.putExtra("category", "category1")
+            intent.putExtra("category", "contents1")
             startActivity(intent)
         }
 

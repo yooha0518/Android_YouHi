@@ -15,7 +15,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.yoohayoung.youhi.auth.IntroActivity
-import com.yoohayoung.youhi.auth.UserModel
 import com.yoohayoung.youhi.databinding.ActivityMyPageBinding
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef

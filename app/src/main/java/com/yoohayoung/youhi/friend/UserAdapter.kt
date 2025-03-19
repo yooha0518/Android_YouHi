@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.yoohayoung.youhi.R
+import com.yoohayoung.youhi.databinding.ItemUserBinding
 import com.yoohayoung.youhi.utils.GlideOptions.Companion.profileOptions
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -19,19 +20,16 @@ class UserAdapter(
         fun onUserAction(friend: Friend)
     }
 
-    class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val TV_name:TextView = itemView.findViewById(R.id.TV_name)
-        val TV_nickName:TextView = itemView.findViewById(R.id.TV_nickName)
-        val BTN_friendAction:TextView = itemView.findViewById(R.id.BTN_friendAction)
-        val IV_profile: CircleImageView = itemView.findViewById(R.id.IV_profile)
-
+    class UserViewHolder(binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root) {
+        val TV_name:TextView = binding.TVName
+        val TV_nickName:TextView = binding.TVNickName
+        val BTN_friendAction:TextView = binding.BTNFriendAction
+        val IV_profile: CircleImageView = binding.IVProfile
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_user, parent, false)
-
-        return UserViewHolder(view)
+        val binding = ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return UserViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {

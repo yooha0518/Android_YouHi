@@ -1,54 +1,61 @@
 package com.yoohayoung.youhi.board
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.yoohayoung.youhi.Board
+import com.yoohayoung.youhi.News
 import com.yoohayoung.youhi.databinding.ActivityBoardWriteBinding
 import com.yoohayoung.youhi.messageData
-import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getTime
 import com.yoohayoung.youhi.utils.FBAuth.Companion.getUid
 import com.yoohayoung.youhi.utils.FBRef
+import com.yoohayoung.youhi.utils.GlideOptions.Companion.boardImageOptions
 import com.yoohayoung.youhi.utils.RetrofitClient.apiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
-data class News(
-    val uid: String ="",
-    val content: String = ""
-)
 class BoardWriteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBoardWriteBinding
-    private var imageSelected: Boolean = false
     private lateinit var category: String
+    private var imageSelected: Boolean = false
+    private var selectedImageUri: Uri? = null
 
     // ActivityResultLauncher 정의
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val data: Intent? = result.data
-            binding.imageArea.setImageURI(data?.data)
-            imageSelected = true // 이미지를 선택한 경우 플래그를 설정
+            selectedImageUri = data?.data
+
+            if (selectedImageUri != null) {
+                Glide.with(this)
+                    .load(selectedImageUri)
+                    .apply(boardImageOptions)
+                    .into(binding.imageArea)
+
+                imageSelected = true
+            }
         }
     }
 
@@ -142,7 +149,7 @@ class BoardWriteActivity : AppCompatActivity() {
 
     suspend fun sendMsgApiRequest(nickName: String, message: String) { //nickName과 친구인 유저들에게 알림 발송(서버에서 친구 필터링)
         val title = "$nickName 님이 게시글을 작성했습니다."
-        val request = messageData(name = FBAuth.getUid(), message = message, title = title, type = "board", auther = nickName)
+        val request = messageData(name = getUid(), message = message, title = title, type = "board", auther = nickName)
         try {
             Log.d("sendMsgApiRequest", "nickName: $nickName, message: $message")
             val apiResponse = apiService.sendMsg(request)
@@ -155,20 +162,20 @@ class BoardWriteActivity : AppCompatActivity() {
     suspend fun reqUploadBoardImage(boardId: String) {
         withContext(Dispatchers.IO) {
             try {
-                val imageView = binding.imageArea
-                imageView.isDrawingCacheEnabled = true
-                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+                // URI가 없을 경우 예외 처리
+                if (selectedImageUri == null) {
+                    Log.e("Upload", "Error: No image selected")
+                    return@withContext
+                }
 
-                val baos = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                val imageData = baos.toByteArray()
+                // 임시 파일 생성
+                val file = createTempFileFromUri(selectedImageUri!!)
 
-                val requestFile = imageData.toRequestBody("image/jpeg".toMediaType())
+                // 파일을 MultipartBody.Part로 변환
+                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
                 val imageBody = MultipartBody.Part.createFormData("image", "${boardId}.jpg", requestFile)
 
                 val boardIdBody = boardId.toRequestBody("text/plain".toMediaTypeOrNull())
-
-                Log.d("reqUploadProfileImage", "uid: $boardIdBody")
 
                 val response = apiService.uploadBoardImage(boardIdBody, imageBody)
 
@@ -178,4 +185,20 @@ class BoardWriteActivity : AppCompatActivity() {
             }
         }
     }
+
+    // URI로부터 임시 파일 생성하는 함수
+    private fun createTempFileFromUri(uri: Uri): File {
+        val fileName = "${System.currentTimeMillis()}.jpg"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val tempFile = File(storageDir, fileName)
+
+        contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(tempFile).use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        return tempFile
+    }
+
 }

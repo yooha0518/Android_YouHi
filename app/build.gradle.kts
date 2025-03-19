@@ -24,8 +24,8 @@ android {
         applicationId = "com.yoohayoung.youhi"
         minSdk = 28
         targetSdk = 34
-        versionCode = 11
-        versionName = "5.7"
+        versionCode = 13
+        versionName = "5.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -93,4 +93,6 @@ dependencies {
     implementation ("androidx.recyclerview:recyclerview:1.2.1")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("androidx.cardview:cardview:1.0.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
 }

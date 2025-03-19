@@ -14,10 +14,10 @@ import com.yoohayoung.youhi.databinding.ActivityBoardListBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef
 
-class BoardListActivity : AppCompatActivity(),BoardListRVAdapter.BoardActionListener {
+class BoardListActivity : AppCompatActivity(),BoardListAdapter.BoardActionListener {
     private lateinit var binding: ActivityBoardListBinding
     private val boardDataList = mutableListOf<Board>()
-    private lateinit var boardRVAdapter : BoardListRVAdapter
+    private lateinit var boardRVAdapter : BoardListAdapter
     private lateinit var category :String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +25,7 @@ class BoardListActivity : AppCompatActivity(),BoardListRVAdapter.BoardActionList
         binding = ActivityBoardListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        boardRVAdapter = BoardListRVAdapter(boardDataList,this)
+        boardRVAdapter = BoardListAdapter(boardDataList,this)
         binding.RVBoard.adapter = boardRVAdapter
         binding.RVBoard.layoutManager = LinearLayoutManager(this)
 

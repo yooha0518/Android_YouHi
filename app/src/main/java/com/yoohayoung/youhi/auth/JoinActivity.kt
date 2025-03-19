@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.yoohayoung.youhi.MainActivity
+import com.yoohayoung.youhi.UserModel
 import com.yoohayoung.youhi.databinding.ActivityJoinBinding
 import com.yoohayoung.youhi.utils.FBAuth
 import com.yoohayoung.youhi.utils.FBRef

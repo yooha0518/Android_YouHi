@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.yoohayoung.youhi.R
+import com.yoohayoung.youhi.databinding.ItemFriendBinding
 import com.yoohayoung.youhi.utils.GlideOptions.Companion.profileOptions
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -20,21 +21,18 @@ class FriendAdapter(private val friendsList: List<Friend>,
 
     interface FriendActionListener{
         fun onFriendAction(friend: Friend)
-
     }
 
-    class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val TV_nickName: TextView = itemView.findViewById(R.id.TV_nickName)
-        val BTN_friend_res: Button = itemView.findViewById(R.id.BTN_friend_res)
-        val TV_name: TextView = itemView.findViewById(R.id.TV_name)
-        val IV_profile: CircleImageView = itemView.findViewById(R.id.IV_profile)
-
+    class FriendViewHolder(binding: ItemFriendBinding) : RecyclerView.ViewHolder(binding.root) {
+        val TV_nickName: TextView = binding.TVNickName
+        val BTN_friend_res: Button = binding.BTNFriendRes
+        val TV_name: TextView = binding.TVName
+        val IV_profile: CircleImageView = binding.IVProfile
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_friend, parent, false)
-        return FriendViewHolder(view)
+        val binding = ItemFriendBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return FriendViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {

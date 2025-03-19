@@ -42,7 +42,6 @@ class FriendFragment : Fragment(),FriendAdapter.FriendActionListener {
         friendAdapter = FriendAdapter(friendsList,this)
         pendingFriendAdapter = FriendAdapter(pendingList,this)
 
-
         binding.RVFriendList.adapter = friendAdapter
         binding.RVFriendRequestsList.adapter = pendingFriendAdapter
 
