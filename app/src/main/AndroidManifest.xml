@@ -22,9 +22,14 @@
             android:name=".event.CreateEventActivity"
             android:exported="false" />
 
+<!--        <meta-data-->
+<!--            android:name="com.google.android.gms.ads.APPLICATION_ID"-->
+<!--            android:value="ca-app-pub-6275012078813593~1532395592" />-->
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-6275012078813593~1532395592" />
+            android:value="ca-app-pub-6275012078813593~6585088633" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

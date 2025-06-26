@@ -24,8 +24,8 @@ android {
         applicationId = "com.yoohayoung.youhi"
         minSdk = 28
         targetSdk = 34
-        versionCode = 13
-        versionName = "5.9"
+        versionCode = 14
+        versionName = "5.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
